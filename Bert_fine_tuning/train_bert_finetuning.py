@@ -33,7 +33,7 @@ epochs = args.epochs
 batch_size = args.batch
 type_ = args.type
 
-# this line is to disable gpu
+# this line is to enable gpu
 os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 tf.compat.v1.random.set_random_seed(7)
