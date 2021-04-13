@@ -70,16 +70,26 @@ while True:
     print('\nEnter your sentence: ')
     try:
         input_text = input().strip()
+
+        #벡터화
+        data_text_arr = list(input_text)
+        data_tags_arr = list(input_text)
+        data_input_ids, data_input_mask, data_segment_ids = bert_to_array.transform(data_text_arr)
+
+        #예측 결과 출력
+        inferred_tags, slots_score = model.predict_slots([data_input_ids, data_input_mask, data_segment_ids], tags_to_array)
+        print("Inferred tags")
+        print(inferred_tags)
+        print("Slots score")
+        print(slots_score)
+
     except:
         continue
         
     if input_text == 'quit':
         break
 
-#벡터화
-data_text_arr = list(input_text)
-data_tags_arr = list(input_text)
-data_input_ids, data_input_mask, data_segment_ids = bert_to_array.transform(data_text_arr)
+
 
 ############################### TODO ##########################################
 # 사용자가 입력한 한 문장을 슬롯태깅 모델에 넣어서 결과 뽑아내기
@@ -111,11 +121,7 @@ f1_score, tag_incorrect = get_results(data_input_ids, data_input_mask, data_segm
                                                             data_tags_arr, tags_to_array)
 """
 
-inferred_tags, slots_score = model.predict_slots([data_input_ids, data_input_mask, data_segment_ids], tags_to_array)
-print("Inferred tags")
-print(inferred_tags)
-print("Slots score")
-print(slots_score)
+i
 
 tf.compat.v1.reset_default_graph()
 
