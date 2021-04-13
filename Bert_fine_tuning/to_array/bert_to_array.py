@@ -48,8 +48,6 @@ class BERTToArray:
         tokens.insert(0, '[CLS]')
         # insert "[SEP]"
         tokens.append('[SEP]')
-        # 어떻게 토큰화됐는지 출력
-        print(tokens)
         
         segment_ids = [0] * len(tokens)
         input_ids = self.tokenizer.convert_tokens_to_ids(tokens)
