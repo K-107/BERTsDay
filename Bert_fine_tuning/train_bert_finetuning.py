@@ -11,6 +11,8 @@ import numpy as np
 import os
 import pickle
 import tensorflow as tf
+import warnings
+warnings.filterwarnings("ignore")
 
 
 # read command-line parameters

@@ -12,6 +12,8 @@ import tensorflow as tf
 from to_array.bert_to_array import BERTToArray
 from models.bert_slot_model import BertSlotModel
 from sklearn import metrics
+import warnings
+warnings.filterwarnings("ignore")
 
 
 # read command-line parameters

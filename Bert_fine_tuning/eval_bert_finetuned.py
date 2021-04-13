@@ -10,6 +10,8 @@ import os
 import pickle
 import tensorflow as tf
 from sklearn import metrics
+import warnings
+warnings.filterwarnings("ignore")
 
 
 # read command-line parameters
