@@ -39,9 +39,7 @@ config = tf.ConfigProto(intra_op_parallelism_threads=8,
 sess = tf.Session(config=config)
 
 if type_ == 'bert':
-############################################## TODO 경로 고치기 ###############################################
     bert_model_hub_path = args.bertpath
-###############################################################################################################
     is_bert = True
 elif type_ == 'albert':
     bert_model_hub_path = 'https://tfhub.dev/google/albert_base/1'
