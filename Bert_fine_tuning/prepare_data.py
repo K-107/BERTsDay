@@ -123,6 +123,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     file_path = args.input
     output_dir = args.output
+    print(args.vocabpath)
     tokenizer = FullTokenizer(vocab_file=args.vocabpath)
 
 
