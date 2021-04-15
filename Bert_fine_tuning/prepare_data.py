@@ -121,9 +121,6 @@ if __name__ == "__main__":
     parser.add_argument('--vocabpath', '-vp', help = '프리트레인 모듈의 vocab.list 파일 위치', type=str, required=True)
 
     args = parser.parse_args()
-    print("input=",args.input)
-    print("output=",args.output)
-    print("vacabpath=",args.vocabpath)
     file_path = args.input
     output_dir = args.output
     tokenizer = FullTokenizer(vocab_file=args.vocabpath)
