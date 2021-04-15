@@ -125,5 +125,4 @@ if __name__ == "__main__":
     output_dir = args.output
     tokenizer = FullTokenizer(vocab_file=args.vocabpath)
 
-
     process_file(file_path, output_dir)
