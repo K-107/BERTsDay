@@ -118,9 +118,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', '-i', help = '단방향 데이터 형식의 텍스트 파일', type = str, required = True)
     parser.add_argument('--output', '-o', help = 'Path to data', type = str, required = True)
+    parser.add_argument('--vocabpath', '-vp', help = "프리트레인 모듈의 vocab.list 파일 위치", type=str, required=True)
 
     args = parser.parse_args()
     file_path = args.input
     output_dir = args.output
+    tokenizer = FullTokenizer(vocab_file=parser.vocabpath)
+
 
     process_file(file_path, output_dir)

@@ -18,7 +18,7 @@ warnings.filterwarnings("ignore")
 parser = argparse.ArgumentParser('Evaluating the BERT / ALBERT NLU model')
 parser.add_argument('--model', '-m', help = 'Path to BERT / ALBERT NLU model', type = str, required = True)
 parser.add_argument('--type', '-tp', help = 'bert or albert', type = str, default = 'bert', required = False)
-parser.add_argument('--bertpath', '-bp', help = 'bert model hub path (=modularized pretrained bert path)', type = str, default = "/content/drive/MyDrive/bert-module")
+parser.add_argument('--bertpath', '-bp', help = '프리트레인된 BERT 모듈 경로', type = str, default = "/content/drive/MyDrive/bert-module")
 
 
 
@@ -67,23 +67,26 @@ while True:
     try:
         input_text = input().strip()
 
-        #벡터화
-        data_text_arr = list(input_text)
-        data_tags_arr = list(input_text)
-        data_input_ids, data_input_mask, data_segment_ids = bert_to_array.transform(data_text_arr)
-
-        #예측 결과 출력
-        inferred_tags, slots_score = model.predict_slots([data_input_ids, data_input_mask, data_segment_ids], tags_to_array)
-        print("Inferred tags")
-        print(inferred_tags)
-        print("Slots score")
-        print(slots_score)
-
     except:
         continue
-        
+
     if input_text == 'quit':
         break
+
+    #벡터화
+    data_text_arr = list(input_text)
+    data_tags_arr = list(input_text)
+    data_input_ids, data_input_mask, data_segment_ids = bert_to_array.transform(data_text_arr)
+
+    #예측 결과 출력
+    inferred_tags, slots_score = model.predict_slots([data_input_ids, data_input_mask, data_segment_ids], tags_to_array)
+    print("Inferred tags")
+    print(inferred_tags)
+    print("Slots score")
+    print(slots_score)        
+    
+
+    
 
 tf.compat.v1.reset_default_graph()
 

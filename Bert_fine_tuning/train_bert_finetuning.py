@@ -23,7 +23,7 @@ parser.add_argument('--save', '-s', help = 'Folder path to save the trained mode
 parser.add_argument('--epochs', '-e', help = 'Number of epochs', type = int, default = 5, required = False)
 parser.add_argument('--batch', '-bs', help = 'Batch size', type = int, default = 64, required = False)
 parser.add_argument('--type', '-tp', help = 'bert or albert', type = str, default = 'bert', required = False)
-parser.add_argument('--bertpath', '-bp', help = 'bert model hub path (=modularized pretrained bert path)', type = str, default = "/content/drive/MyDrive/bert-module")
+parser.add_argument('--bertpath', '-bp', help = '프리트레인된 BERT 모듈 경로', type = str, default = "/content/drive/MyDrive/bert-module")
 
 
 VALID_TYPES = ['bert', 'albert']
@@ -49,9 +49,7 @@ sess = tf.compat.v1.Session(config=config)
 
 if type_ == 'bert':
 
-############################### TODO 경로 고치기 ##########################################
     bert_model_hub_path = args.bertpath
-###########################################################################################
     bert_vocab_path = os.path.join(bert_model_hub_path, 'assets/vocab.korean.rawtext.list')
     is_bert = True
 elif type_ == 'albert':
