@@ -7,7 +7,7 @@ from to_array.tokenizationK import FullTokenizer
 import pdb
 
 ############################################## TODO 경로 고치기 ###############################################
-tokenizer = FullTokenizer(vocab_file="/content/drive/MyDrive/bert/assets/vocab.korean.rawtext.list")
+#tokenizer = FullTokenizer(vocab_file="/content/drive/MyDrive/bert/assets/vocab.korean.rawtext.list")
 ###############################################################################################################
 
 # "/인물;한지민/과 /인물;한예슬/ 나오는 드라마 있어?"와 같은 예시처럼
