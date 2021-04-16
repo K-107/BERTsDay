@@ -17,7 +17,7 @@ slot_pattern = re.compile(r"/(.+?);(.+?)/")
 multi_spaces = re.compile(r"\s+")
 
 
-def process_file(file_path, output_dir):
+def process_file(file_path, output_dir, tokenizer):
     """
     단방향 데이터가 있는 file_path을 argument로 주면 가공을 한 이후에
     output_dir 아래에 2개의 파일(seq.in, seq.out)을 저장해 주는 함수.
@@ -125,4 +125,4 @@ if __name__ == "__main__":
     output_dir = args.output
     tokenizer = FullTokenizer(vocab_file=args.vocabpath)
 
-    process_file(file_path, output_dir)
+    process_file(file_path, output_dir, tokenizer)
