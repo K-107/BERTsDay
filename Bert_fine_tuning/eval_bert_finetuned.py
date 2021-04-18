@@ -30,20 +30,21 @@ data_folder_path = args.data
 type_ = args.type
 
 # this line is to disable gpu
-#os.environ['CUDA_VISIBLE_DEVICES']='-1'
-#config = tf.ConfigProto(intra_op_parallelism_threads=8, 
-#                        inter_op_parallelism_threads=0,
-#                        allow_soft_placement=True,
-#                        device_count = {'CPU': 8})
-#sess = tf.Session(config=config)
-
-# this line is to enable gpu
-tf.compat.v1.random.set_random_seed(7)
-config = tf.ConfigProto(intra_op_parallelism_threads=0, 
+unit_type = 'GPU'
+os.environ['CUDA_VISIBLE_DEVICES']='-1'
+config = tf.ConfigProto(intra_op_parallelism_threads=8, 
                         inter_op_parallelism_threads=0,
                         allow_soft_placement=True,
-                        device_count = {'GPU': 1})
-sess = tf.compat.v1.Session(config=config)
+                        device_count = {unit_type: 8})
+sess = tf.Session(config=config)
+
+# this line is to enable gpu
+#tf.compat.v1.random.set_random_seed(7)
+#config = tf.ConfigProto(intra_op_parallelism_threads=0, 
+#                        inter_op_parallelism_threads=0,
+#                        allow_soft_placement=True,
+#                        device_count = {'GPU': 1})
+#sess = tf.compat.v1.Session(config=config)
 
 if type_ == 'bert':
     bert_model_hub_path = args.bertpath
