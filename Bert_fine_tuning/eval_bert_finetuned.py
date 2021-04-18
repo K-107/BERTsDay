@@ -30,12 +30,11 @@ data_folder_path = args.data
 type_ = args.type
 
 # this line is to disable gpu
-unit_type = 'GPU'
 os.environ['CUDA_VISIBLE_DEVICES']='-1'
 config = tf.ConfigProto(intra_op_parallelism_threads=8, 
                         inter_op_parallelism_threads=0,
                         allow_soft_placement=True,
-                        device_count = {unit_type: 8})
+                        device_count = {'GPU': 8})
 sess = tf.Session(config=config)
 
 # this line is to enable gpu
