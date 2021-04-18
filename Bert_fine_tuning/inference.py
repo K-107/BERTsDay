@@ -34,7 +34,7 @@ os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 config = tf.ConfigProto(intra_op_parallelism_threads=1,
                         inter_op_parallelism_threads=1,
                         allow_soft_placement=True,
-                        device_count = {'CPU': 1})
+                        device_count = {'GPU': 1})
 sess = tf.compat.v1.Session(config=config)
 
 if type_ == 'bert':
