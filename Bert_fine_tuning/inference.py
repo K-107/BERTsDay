@@ -9,6 +9,7 @@ import tensorflow as tf
 
 from to_array.bert_to_array import BERTToArray
 from models.bert_slot_model import BertSlotModel
+from to_array.tokenizationK import FullTokenizer
 from sklearn import metrics
 import warnings
 warnings.filterwarnings("ignore")
@@ -28,8 +29,8 @@ args = parser.parse_args()
 load_folder_path = args.model
 type_ = args.type
 
-# this line is to enable gpu
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
+# this line is to disable gpu
+os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
 config = tf.ConfigProto(intra_op_parallelism_threads=0,
                         inter_op_parallelism_threads=0,
@@ -61,6 +62,7 @@ with open(os.path.join(load_folder_path, 'tags_to_array.pkl'), 'rb') as handle:
     slots_num = len(tags_to_array.label_encoder.classes_)
 
 model = BertSlotModel.load(load_folder_path, sess)
+tokenizer = FullTokenizer(vocab_file=vocab_file)
 
 while True:
     print('\nEnter your sentence: ')
@@ -73,9 +75,11 @@ while True:
     if input_text == 'quit':
         break
 
+    input_text = ' '.join(tokenizer.tokenize(input_text))
+
     #벡터화
-    data_text_arr = list(input_text)
-    data_tags_arr = list(input_text)
+    data_text_arr = [input_text]
+    print(data_text_arr)
     data_input_ids, data_input_mask, data_segment_ids = bert_to_array.transform(data_text_arr)
 
     #예측 결과 출력
@@ -89,4 +93,3 @@ while True:
     
 
 tf.compat.v1.reset_default_graph()
-
