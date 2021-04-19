@@ -1,14 +1,11 @@
 import os
 import sys
-# 프로젝트 폴더를 import가 이루어질 경로에 추가 
-"""
 sys.path.append(
     os.path.dirname(os.path.abspath(
         os.path.dirname(os.path.abspath(os.path.dirname(__file__))))))
-"""
-import finetuned
+import Bert_fine_tuning as bert
 
 if __name__ == "__main__":
-    print(__file__)
+    bert.to_array("asd")
     print(os.getcwd())
-    print()
+    print(os.get)
