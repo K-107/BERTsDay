@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, render_template, request
 import os
-
-############################### TODO ##########################################
-# 필요한 모듈 불러오기
-###############################################################################
+import Bert_fine_tuning as bert
 
 
-bert_model_hub_path = '/content/drive/MyDrive/bert-module' # TODO 경로 고치기
+bert_model_hub_path = 'Fine_tuned' # TODO 경로 고치기
 is_bert = True
 
 ############################### TODO ##########################################
@@ -26,6 +23,7 @@ def home():
     app.slot_dict = {'a_slot': None, 'b_slot':None}
 ###############################################################################
 
+
     return render_template("index.html")
     
 @app.route("/get")
@@ -40,6 +38,3 @@ def get_bot_response():
 
     return 'hi' # 챗봇이 이용자에게 하는 말을 return
 ###############################################################################
-
-
-
