@@ -29,8 +29,8 @@ args = parser.parse_args()
 load_folder_path = args.model
 type_ = args.type
 
-# this line is to disable gpu
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
+# this line is to enable gpu
+os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
 config = tf.ConfigProto(intra_op_parallelism_threads=0,
                         inter_op_parallelism_threads=0,
