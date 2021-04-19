@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request
 import os
 import Bert_fine_tuning as bert
+import tensorflow as tf
 
 
 bert_model_hub_path = 'Fine_tuned' # TODO 경로 고치기

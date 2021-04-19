@@ -30,12 +30,12 @@ data_folder_path = args.data
 type_ = args.type
 
 # this line is to enable gpu
-os.environ['CUDA_VISIBLE_DEVICES']='-1'
+os.environ['CUDA_VISIBLE_DEVICES']="0"
 
-config = tf.ConfigProto(intra_op_parallelism_threads=8, 
+config = tf.ConfigProto(intra_op_parallelism_threads=0, 
                         inter_op_parallelism_threads=0,
                         allow_soft_placement=True,
-                        device_count = {'GPU': 8})
+                        device_count = {'GPU': 1})
 sess = tf.Session(config=config)
 
 if type_ == 'bert':
