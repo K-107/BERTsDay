@@ -6,6 +6,7 @@ import argparse
 import os
 import pickle
 import tensorflow as tf
+import numpy as np
 
 from to_array.bert_to_array import BERTToArray
 from models.bert_slot_model import BertSlotModel
@@ -64,6 +65,13 @@ with open(os.path.join(load_folder_path, 'tags_to_array.pkl'), 'rb') as handle:
 model = BertSlotModel.load(load_folder_path, sess)
 tokenizer = FullTokenizer(vocab_file=vocab_file)
 
+answer_name_arr = ['성함이 어떻게 되시나요?', '이름을 말해주세요.']
+answer_phone_arr = ['연락 가능한 번호를 써주세요.(예시 : 010-1234-1234)', '전화번호를 알려주세요.(예시 : 010-1234-1234)', '예약자 분의 번호를 입력해주세요.(예시 : 010-1234-1234)']
+answer_date_arr = ['몇 월 며칠에 예약하고 싶으신가요?', '예약하고 싶은 월일을 입력해주세요. (예시: 1월 3일)', '예약하시려는 날짜를 알려주세요.']
+answer_start_arr = ['몇 시로 예약하실 건가요?', '몇 시부터 사용하실 건가요?', '사용 시작 시간을 알려주세요.']
+answer_end_arr = ['몇 시까지 이용하실 건가요?', '언제까지 사용하실 건가요?', '종료 시간을 알려주세요.']
+answer_person_arr = ['총 몇 명이신가요?', '몇 명이서 쓰실 건가요?', '이용 인원을 말씀해주세요?']
+
 r_name = ''
 r_phone_no = ''
 r_date = ''
@@ -98,7 +106,21 @@ while True:
     print(slots_score)    
     
     for i in range(0,len(inferred_tags)):
-        print(inferred_tags[i])
-
+        print(i,':',inferred_tags[i])
+        
+    if r_name == '':
+        print(np.random.choice(answer_name_arr, 1))
+    elif r_phone_no == '':
+        print(np.random.choice(answer_phone_arr, 1))
+    elif r_date == '':
+        print(np.random.choice(answer_date_arr, 1))
+    elif r_start_time == '':
+        print(np.random.choice(answer_start_arr, 1))
+    elif r_end_time == '':
+        print(np.random.choice(answer_end_arr, 1))
+    elif r_person == '':
+        print(np.random.choice(answer_person_arr, 1))
+    else:
+        print('예약 완료')
 
 tf.compat.v1.reset_default_graph()
