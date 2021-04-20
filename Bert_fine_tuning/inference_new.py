@@ -119,11 +119,6 @@ while True:
         now = datetime.datetime.now()
         r_date = str(now.month) + '월 ' + str(now.day) + '일'
 
-    if '내일' in input_text:
-        print('내일 이라는 문자가 들어있음')
-        now = datetime.datetime.now()+1
-        r_date = str(now.month) + '월 ' + str(now.day) + '일'
-
     for i in range(0,len(inferred_tags[0])):
         if inferred_tags[0][i]=='날짜':
             if r_date == '': r_num += 1
