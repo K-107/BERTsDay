@@ -91,11 +91,11 @@ while True:
     if input_text == 'quit':
         break
 
-    input_text = ' '.join(tokenizer.tokenize(input_text))
+    input_text_t = ' '.join(tokenizer.tokenize(input_text))
 
     #벡터화
-    data_text_arr = [input_text]
-    token_list = data_text_arr.split()
+    data_text_arr = [input_text_t]
+    token_list = input_text_t.split()
     print(data_text_arr)
     print('token_list : ',token_list)
     data_input_ids, data_input_mask, data_segment_ids = bert_to_array.transform(data_text_arr)
@@ -107,6 +107,19 @@ while True:
     print("Slots score")
     print(slots_score)    
     
+        
+    import datetime
+    now = datetime.datetime.now()
+    now
+    print(now.month,'월')
+    print(now.day,'일')
+    print(now.hour,'시')
+
+    print('input_text : ',input_text)
+    if '오늘' in input_text:
+        print('오늘 이라는 문자가 들어있음')
+        r_date = now.month + '월 ' + now.day + '일'
+
     for i in range(0,len(inferred_tags[0])):
         if inferred_tags[0][i]=='날짜':
             if r_date == '': r_num += 1
