@@ -7,6 +7,7 @@ import os
 import pickle
 import tensorflow as tf
 import numpy as np
+import datetime
 
 from to_array.bert_to_array import BERTToArray
 from models.bert_slot_model import BertSlotModel
@@ -91,11 +92,13 @@ while True:
     if input_text == 'quit':
         break
 
-    input_text = ' '.join(tokenizer.tokenize(input_text))
+    input_text_t = ' '.join(tokenizer.tokenize(input_text))
 
     #벡터화
-    data_text_arr = [input_text]
+    data_text_arr = [input_text_t]
+    token_list = input_text_t.split()
     print(data_text_arr)
+    print('token_list : ',token_list)
     data_input_ids, data_input_mask, data_segment_ids = bert_to_array.transform(data_text_arr)
 
     #예측 결과 출력
@@ -103,39 +106,53 @@ while True:
     print("Inferred tags")
     print(inferred_tags)
     print("Slots score")
-    print(slots_score)    
+    print(slots_score)        
     
+    now = datetime.datetime.now()
+    print(now.month,'월')
+    print(now.day,'일')
+    print(now.hour,'시')
+
+    print('input_text : ',input_text)
+    if '오늘' in input_text:
+        print('오늘 이라는 문자가 들어있음')
+        now = datetime.datetime.now()
+        r_date = str(now.month) + '월 ' + str(now.day) + '일'
+
     for i in range(0,len(inferred_tags[0])):
-        if inferred_tags[0][i]=='이름':
-            if r_name == '': r_num += 1
-            r_name = inferred_tags[0][i]
-        elif inferred_tags[0][i]=='번호':
-            if r_phone_no == '': r_num += 1
-            r_phone_no = inferred_tags[0][i]     
-        elif inferred_tags[0][i]=='날짜':
+        if inferred_tags[0][i]=='날짜':
             if r_date == '': r_num += 1
-            r_date = inferred_tags[0][i]     
+            r_date += token_list[i]     
         elif inferred_tags[0][i]=='시작시간':
             if r_start_time == '': r_num += 1
-            r_start_time = inferred_tags[0][i]     
+            r_start_time += token_list[i]     
         elif inferred_tags[0][i]=='종료시간':
             if r_end_time == '': r_num += 1
-            r_end_time = inferred_tags[0][i]     
+            r_end_time += token_list[i]     
         elif inferred_tags[0][i]=='인원':
             if r_person == '': r_num += 1
-            r_person = inferred_tags[0][i] 
-
-    if r_num >= 6:
+            r_person += token_list[i] 
+        elif inferred_tags[0][i]=='이름':
+            if r_name == '': r_num += 1
+            r_name += token_list[i]
+        elif inferred_tags[0][i]=='번호':
+            if r_phone_no == '': r_num += 1
+            r_phone_no += token_list[i]   
+    
+    print('r_date = ',r_date)
+    print('r_start_time = ',r_start_time)
+    print('r_end_time = ',r_end_time)
+    print('r_person = ',r_person)
+    print('r_name = ',r_name)
+    print('r_phone_no = ',r_phone_no)
+    
+    if ((r_date != '') and (r_start_time != '') and (r_end_time != '') and (r_person != '') and (r_name != '') and (r_phone_no != '')):
         print('예약이 완료되었습니다. 예약을 종료합니다.')
         break
-    elif  r_num == 0:   
+    elif ((r_date == '') and (r_start_time == '') and (r_end_time == '') and (r_person == '') and (r_name == '') and (r_phone_no == '')):
         print('죄송합니다 제가 이해를 잘 못해서 다시 한번 입력해주세요.')
     else:        
-        if r_name == '':
-            print(np.random.choice(answer_name_arr, 1))
-        elif r_phone_no == '':
-            print(np.random.choice(answer_phone_arr, 1))
-        elif r_date == '':
+        if r_date == '':
             print(np.random.choice(answer_date_arr, 1))
         elif r_start_time == '':
             print(np.random.choice(answer_start_arr, 1))
@@ -143,6 +160,9 @@ while True:
             print(np.random.choice(answer_end_arr, 1))
         elif r_person == '':
             print(np.random.choice(answer_person_arr, 1))
+        elif r_name == '':
+            print(np.random.choice(answer_name_arr, 1))
+        elif r_phone_no == '':
+            print(np.random.choice(answer_phone_arr, 1))
 
-            
 tf.compat.v1.reset_default_graph()
