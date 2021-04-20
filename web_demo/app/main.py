@@ -74,7 +74,6 @@ def get_bot_response():
     except Exception as e:
         return "오류가 발생했습니다, 페이지를 다시 열어주세요"
     
+
+    
     return f"input_text: {tokens}<br>inferred_tags: {inferred_tags} <br>slots_score: {slots_score}"
-
-
-
