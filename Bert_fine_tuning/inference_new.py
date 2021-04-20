@@ -127,10 +127,10 @@ while True:
             if r_phone_no == '': r_num += 1
             r_phone_no += token_list[i]     
 
-    if r_num >= 6:
+    if (r_date != '')&&(r_start_time != '')&&(r_end_time != '')&&(r_person != '')&&(r_name != '')&&(r_phone_no != ''):
         print('예약이 완료되었습니다. 예약을 종료합니다.')
         break
-    elif  r_num == 0:   
+    elif (r_date == '')&&(r_start_time == '')&&(r_end_time == '')&&(r_person == '')&&(r_name == '')&&(r_phone_no == ''):
         print('죄송합니다 제가 이해를 잘 못해서 다시 한번 입력해주세요.')
     else:        
         if r_date == '':
