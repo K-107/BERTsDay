@@ -64,6 +64,14 @@ with open(os.path.join(load_folder_path, 'tags_to_array.pkl'), 'rb') as handle:
 model = BertSlotModel.load(load_folder_path, sess)
 tokenizer = FullTokenizer(vocab_file=vocab_file)
 
+r_name = ''
+r_phone_no = ''
+r_date = ''
+r_start_time = ''
+r_end_time = ''
+r_person = ''
+r_num = 0
+
 while True:
     print('\nEnter your sentence: ')
     try:
@@ -87,9 +95,10 @@ while True:
     print("Inferred tags")
     print(inferred_tags)
     print("Slots score")
-    print(slots_score)        
+    print(slots_score)    
     
+    for i in range(0,len(inferred_tags)):
+        print(inferred_tags[i])
 
-    
 
 tf.compat.v1.reset_default_graph()
