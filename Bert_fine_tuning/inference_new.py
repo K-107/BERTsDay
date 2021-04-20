@@ -127,6 +127,13 @@ while True:
             if r_phone_no == '': r_num += 1
             r_phone_no += token_list[i]     
 
+    print('r_date = ',r_date)
+    print('r_start_time = ',r_start_time)
+    print('r_end_time = ',r_end_time)
+    print('r_person = ',r_person)
+    print('r_name = ',r_name)
+    print('r_phone_no = ',r_phone_no)
+    
     if (r_date != '')&&(r_start_time != '')&&(r_end_time != '')&&(r_person != '')&&(r_name != '')&&(r_phone_no != ''):
         print('예약이 완료되었습니다. 예약을 종료합니다.')
         break
