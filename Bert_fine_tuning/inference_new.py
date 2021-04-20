@@ -134,10 +134,10 @@ while True:
     print('r_name = ',r_name)
     print('r_phone_no = ',r_phone_no)
     
-    if (r_date != '')&&(r_start_time != '')&&(r_end_time != '')&&(r_person != '')&&(r_name != '')&&(r_phone_no != ''):
+    if (r_date != '') and (r_start_time != '') and (r_end_time != '') and (r_person != '') and (r_name != '') and (r_phone_no != ''):
         print('예약이 완료되었습니다. 예약을 종료합니다.')
         break
-    elif (r_date == '')&&(r_start_time == '')&&(r_end_time == '')&&(r_person == '')&&(r_name == '')&&(r_phone_no == ''):
+    elif (r_date == '') and (r_start_time == '') and (r_end_time == '') and (r_person == '') and (r_name == '') and (r_phone_no == ''):
         print('죄송합니다 제가 이해를 잘 못해서 다시 한번 입력해주세요.')
     else:        
         if r_date == '':
