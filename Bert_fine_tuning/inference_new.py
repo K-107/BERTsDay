@@ -105,22 +105,44 @@ while True:
     print("Slots score")
     print(slots_score)    
     
-    for i in range(0,len(inferred_tags)):
-        print(i,':',inferred_tags[i])
-        
-    if r_name == '':
-        print(np.random.choice(answer_name_arr, 1))
-    elif r_phone_no == '':
-        print(np.random.choice(answer_phone_arr, 1))
-    elif r_date == '':
-        print(np.random.choice(answer_date_arr, 1))
-    elif r_start_time == '':
-        print(np.random.choice(answer_start_arr, 1))
-    elif r_end_time == '':
-        print(np.random.choice(answer_end_arr, 1))
-    elif r_person == '':
-        print(np.random.choice(answer_person_arr, 1))
-    else:
-        print('예약 완료')
+    for i in range(0,len(inferred_tags[0])):
+        if inferred_tags[0][i]=='이름':
+            if r_name == '': r_num += 1
+            r_name = inferred_tags[0][i]
+        elif inferred_tags[0][i]=='번호':
+            if r_phone_no == '': r_num += 1
+            r_phone_no = inferred_tags[0][i]     
+        elif inferred_tags[0][i]=='날짜':
+            if r_date == '': r_num += 1
+            r_date = inferred_tags[0][i]     
+        elif inferred_tags[0][i]=='시작시간':
+            if r_start_time == '': r_num += 1
+            r_start_time = inferred_tags[0][i]     
+        elif inferred_tags[0][i]=='종료시간':
+            if r_end_time == '': r_num += 1
+            r_end_time = inferred_tags[0][i]     
+        elif inferred_tags[0][i]=='인원':
+            if r_person == '': r_num += 1
+            r_person = inferred_tags[0][i] 
 
+    if r_num >= 6:
+        print('예약이 완료되었습니다. 예약을 종료합니다.')
+        break
+    elif  r_num == 0:   
+        print('죄송합니다 제가 이해를 잘 못해서 다시 한번 입력해주세요.')
+    else:        
+        if r_name == '':
+            print(np.random.choice(answer_name_arr, 1))
+        elif r_phone_no == '':
+            print(np.random.choice(answer_phone_arr, 1))
+        elif r_date == '':
+            print(np.random.choice(answer_date_arr, 1))
+        elif r_start_time == '':
+            print(np.random.choice(answer_start_arr, 1))
+        elif r_end_time == '':
+            print(np.random.choice(answer_end_arr, 1))
+        elif r_person == '':
+            print(np.random.choice(answer_person_arr, 1))
+
+            
 tf.compat.v1.reset_default_graph()
