@@ -7,8 +7,8 @@ import os
 import pickle
 import tensorflow as tf
 import numpy as np
-from datetime import datetime
-
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 from to_array.bert_to_array import BERTToArray
 from models.bert_slot_model import BertSlotModel
@@ -74,6 +74,9 @@ answer_start_arr = ['몇 시로 예약하실 건가요?', '몇 시부터 사용�
 answer_end_arr = ['몇 시까지 이용하실 건가요?', '언제까지 사용하실 건가요?', '종료 시간을 알려주세요.']
 answer_person_arr = ['총 몇 명이신가요?', '몇 명이서 쓰실 건가요?', '이용 인원을 말씀해주세요?']
 
+date_dict = {'오늘':0,'내일':1,'모레':2}
+person_dict = {'혼자':1,'두명':2,'둘이':2,'세명':3,'셋이':3}
+
 r_name = ''
 r_phone_no = ''
 r_date = ''
@@ -108,19 +111,19 @@ while True:
     print(inferred_tags)
     print("Slots score")
     print(slots_score)        
-    
-    now = datetime.datetime.now()
-    print(now.month,'월')
-    print(now.day,'일')
-    print(now.hour,'시')
 
-    print('input_text : ',input_text)
-    if '오늘' in input_text:
-        print('오늘 이라는 문자가 들어있음')
-        today = datetime.today()
-        r_date = today.strftime("%m월 %d일")
-        #r_date = str(now.month) + '월 ' + str(now.day) + '일'
+    today = datetime.today()
+    for key, value in enumerate(date_dict):
+        if value in input_text:
+            print(value,'(이)라는 문자가 들어있음')
+            date_val = today + timedelta(days=date_dict[value])
+            r_date = date_val.strftime("%m월 %d일")
 
+    for key, value in enumerate(person_dict):
+        if value in input_text:
+            print(value,'(이)라는 문자가 들어있음')
+            r_person = person_dict[value]+'명'
+        
     for i in range(0,len(inferred_tags[0])):
         if inferred_tags[0][i]=='날짜':
             if r_date == '': r_num += 1
