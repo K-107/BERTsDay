@@ -126,10 +126,10 @@ def get_bot_response():
             elif app.slot_dict['name'] == '':
                 return str(np.random.choice(answer_name_arr, 1)[0]) + response
             elif app.slot_dict['phone'] == '':
-                return str(np.random.choice(answer_phone_arr, 1)[0]) + respons
+                return str(np.random.choice(answer_phone_arr, 1)[0]) + response
 
     except Exception as e:
         print(e)
-        return "오류가 발생했습니다, 페이지를 다시 열어주세요"
+        return str(e) + "<br>오류가 발생했습니다, 페이지를 다시 열어주세요"
     
     return "이 문장은 출력될 일이 없습니다."
