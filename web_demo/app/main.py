@@ -4,7 +4,8 @@ import os
 import sys
 import pickle
 import tensorflow as tf
-import datetime
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 import numpy as np
 sys.path.append(os.path.join(os.getcwd(), "Bert_fine_tuning"))
 from to_array.bert_to_array import BERTToArray
@@ -58,6 +59,9 @@ answer_start_arr = ['몇 시로 예약하실 건가요?', '몇 시부터 사용�
 answer_end_arr = ['몇 시까지 이용하실 건가요?', '언제까지 사용하실 건가요?', '종료 시간을 알려주세요.']
 answer_person_arr = ['총 몇 명이신가요?', '몇 명이서 쓰실 건가요?', '이용 인원을 말씀해주세요?']
 
+date_dict = {'오늘':0,'내일':1,'모레':2}
+person_dict = {'혼자':1,'두명':2,'둘이':2,'세명':3,'셋이':3}
+
 @app.route("/get")
 def get_bot_response():
     userText = request.args.get('msg').strip() # 사용자가 입력한 문장
@@ -73,12 +77,16 @@ def get_bot_response():
         with sess.as_default():
             inferred_tags, slots_score = model.predict_slots([data_input_ids, data_input_mask, data_segment_ids], tags_to_array)
     
-    today = datetime.datetime.now()
-    if '오늘' in userText:
-        app.slot_dict['date'] = str(today.month) + "월" + str(today.day) + "일"
-    if '내일' in userText:
-        app.slot_dict['date'] = str(today.month) + "월" + str(today.day + 1) + "일"
-    
+    today = datetime.now()
+    for key, value in enumerate(date_dict):
+        if value in input_text:
+            date_val = today + timedelta(days=date_dict[value])
+            app.slot_dict['date'] = str(date_val.month) + "월" + str(date_val.day) + "일"
+            
+    for key, value in enumerate(person_dict):
+        if value in input_text:
+            app.slot_dict['person'] = str(person_dict[value])+'명'
+
     try:
         # 1. 사용자가 입력한 한 문장을 슬롯태깅 모델에 넣어서 결과 뽑아내기
         for i in range(0,len(inferred_tags[0])):
