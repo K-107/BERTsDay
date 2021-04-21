@@ -111,7 +111,7 @@ def get_bot_response():
         
         # 디버깅용 상태 표시 문장
         if app.debug:
-                response = f"<br><br>slot_dict: {app.slot_dict}<br>input_text: {token_list}<br>inferred_tags: {inferred_tags}" #slots_score: {slots_score}"
+                response = f"<br><br>slot_dict: {app.slot_dict}<br>input_text: {token_list}<br>inferred_tags: {inferred_tags} <br>slots_score: {slots_score}"
         else:
                 response = ""
 
