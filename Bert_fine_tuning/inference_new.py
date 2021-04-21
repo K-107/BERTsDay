@@ -122,7 +122,7 @@ while True:
     for key, value in enumerate(person_dict):
         if value in input_text:
             print(value,'(이)라는 문자가 들어있음')
-            r_person = person_dict[value]+'명'
+            r_person = str(person_dict[value])+'명'
         
     for i in range(0,len(inferred_tags[0])):
         if inferred_tags[0][i]=='날짜':
