@@ -52,6 +52,7 @@ def home():
 
     return render_template("index.html")
 
+score_limit = 0.75  
 answer_name_arr = ['성함이 어떻게 되시나요?', '이름을 말해주세요.']
 answer_phone_arr = ['연락 가능한 번호를 써주세요.(예시 : 010-1234-1234)', '전화번호를 알려주세요.(예시 : 010-1234-1234)', '예약자 분의 번호를 입력해주세요.(예시 : 010-1234-1234)']
 answer_date_arr = ['몇 월 며칠에 예약하고 싶으신가요?', '예약하고 싶은 월일을 입력해주세요. (예시: 1월 3일)', '예약하시려는 날짜를 알려주세요.']
@@ -59,8 +60,8 @@ answer_start_arr = ['몇 시로 예약하실 건가요?', '몇 시부터 사용�
 answer_end_arr = ['몇 시까지 이용하실 건가요?', '언제까지 사용하실 건가요?', '종료 시간을 알려주세요.']
 answer_person_arr = ['총 몇 명이신가요?', '몇 명이서 쓰실 건가요?', '이용 인원을 말씀해주세요?']
 
-date_dict = {'오늘':0,'내일':1,'모레':2}
-person_dict = {'혼자':1,'두명':2,'둘이':2,'세명':3,'셋이':3}
+date_dict = {'오늘':0,'금일':0,내일':1,'낼':1,'모레':2}
+person_dict = {'혼자':1,'두명':2,'둘이':2,'세명':3,'셋이':3,'네명':4,'다섯':5,'여섯':6,'일곱':7,'여덟':8}
 
 @app.route("/get")
 def get_bot_response():
@@ -90,24 +91,25 @@ def get_bot_response():
     try:
         # 1. 사용자가 입력한 한 문장을 슬롯태깅 모델에 넣어서 결과 뽑아내기
         for i in range(0,len(inferred_tags[0])):
-            if inferred_tags[0][i]=='날짜':
-                if app.slot_dict['date'] == "": app.filled_num += 1
-                app.slot_dict['date'] += token_list[i]     
-            elif inferred_tags[0][i]=='시작시간':
-                if app.slot_dict['start'] == "": app.filled_num += 1
-                app.slot_dict['start'] += token_list[i]     
-            elif inferred_tags[0][i]=='종료시간':
-                if app.slot_dict['end'] == "": app.filled_num += 1
-                app.slot_dict['end'] += token_list[i]     
-            elif inferred_tags[0][i]=='인원':
-                if app.slot_dict['person'] == "": app.filled_num += 1
-                app.slot_dict['person'] += token_list[i] 
-            elif inferred_tags[0][i]=='이름':
-                if app.slot_dict['name'] == "": app.filled_num += 1
-                app.slot_dict['name'] += token_list[i]
-            elif inferred_tags[0][i]=='번호':
-                if app.slot_dict['phone'] == "": app.filled_num += 1
-                app.slot_dict['phone'] += token_list[i]   
+            if slots_score[0][i] >= score_limit:
+                if inferred_tags[0][i]=='날짜':
+                    if app.slot_dict['date'] == "": app.filled_num += 1
+                    app.slot_dict['date'] += token_list[i]     
+                elif inferred_tags[0][i]=='시작시간':
+                    if app.slot_dict['start'] == "": app.filled_num += 1
+                    app.slot_dict['start'] += token_list[i]     
+                elif inferred_tags[0][i]=='종료시간':
+                    if app.slot_dict['end'] == "": app.filled_num += 1
+                    app.slot_dict['end'] += token_list[i]     
+                elif inferred_tags[0][i]=='인원':
+                    if app.slot_dict['person'] == "": app.filled_num += 1
+                    app.slot_dict['person'] += token_list[i] 
+                elif inferred_tags[0][i]=='이름':
+                    if app.slot_dict['name'] == "": app.filled_num += 1
+                    app.slot_dict['name'] += token_list[i]
+                elif inferred_tags[0][i]=='번호':
+                    if app.slot_dict['phone'] == "": app.filled_num += 1
+                    app.slot_dict['phone'] += token_list[i]   
         
         # 디버깅용 상태 표시 문장
         if app.debug:
