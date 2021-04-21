@@ -7,7 +7,8 @@ import os
 import pickle
 import tensorflow as tf
 import numpy as np
-import datetime
+from datetime import datetime
+
 
 from to_array.bert_to_array import BERTToArray
 from models.bert_slot_model import BertSlotModel
@@ -116,8 +117,9 @@ while True:
     print('input_text : ',input_text)
     if '오늘' in input_text:
         print('오늘 이라는 문자가 들어있음')
-        now = datetime.datetime.now()
-        r_date = str(now.month) + '월 ' + str(now.day) + '일'
+        today = datetime.today()
+        r_date = today.strftime("%m월 %d일")
+        #r_date = str(now.month) + '월 ' + str(now.day) + '일'
 
     for i in range(0,len(inferred_tags[0])):
         if inferred_tags[0][i]=='날짜':
