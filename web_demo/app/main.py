@@ -100,21 +100,21 @@ def get_bot_response():
             elif inferred_tags[0][i]=='번호':
                 if app.slot_dict['phone'] == "": app.filled_num += 1
                 app.slot_dict['phone'] += token_list[i]   
-
-        print(f"slot_dict: {app.slot_dict}<br>input_text: {token_list}<br>inferred_tags: {inferred_tags} <br>slots_score: {slots_score}")
+        
+        # 디버깅용 상태 표시 문장
+        if app.debug:
+                response = f"<br><br>slot_dict: {app.slot_dict}<br>input_text: {token_list}<br>inferred_tags: {inferred_tags}" #slots_score: {slots_score}"
+        else:
+                response = ""
 
         # 2. 추출된 슬롯 정보를 가지고 더 필요한 정보 물어보는 규칙 만들기 (if문)
         if ((app.slot_dict['start'] != "") and (app.slot_dict['end'] != "") and (app.slot_dict['person'] != "")and (app.slot_dict['date'] != "") and (app.slot_dict['name'] != "") and (app.slot_dict['phone'] != "")):
-            return '예약이 완료되었습니다. 예약을 종료합니다.'
+            return '예약이 완료되었습니다. 예약을 종료합니다.' + response
     
         elif ((app.slot_dict['start'] == "") and (app.slot_dict['end'] == "") and (app.slot_dict['person'] == "") and (app.slot_dict['date'] == "") and (app.slot_dict['name'] == "") and (app.slot_dict['phone'] == "")):
-            return '죄송합니다 제가 이해를 잘 못해서 다시 한번 입력해주세요.'
+            return '죄송합니다 제가 이해를 잘 못해서 다시 한번 입력해주세요.' + response
 
         else:
-            if app.debug:
-                response = f"<br><br>slot_dict: {app.slot_dict}<br>input_text: {token_list}<br>inferred_tags: {inferred_tags} <br>slots_score: {slots_score}"
-            else:
-                response = ""
             if app.slot_dict['date'] == '':
                 return str(np.random.choice(answer_date_arr, 1)[0])+ response
             elif app.slot_dict['start'] == '':
