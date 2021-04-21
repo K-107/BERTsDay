@@ -67,6 +67,7 @@ with open(os.path.join(load_folder_path, 'tags_to_array.pkl'), 'rb') as handle:
 model = BertSlotModel.load(load_folder_path, sess)
 tokenizer = FullTokenizer(vocab_file=vocab_file)
 
+score_limit = 0.8
 answer_name_arr = ['성함이 어떻게 되시나요?', '이름을 말해주세요.']
 answer_phone_arr = ['연락 가능한 번호를 써주세요.(예시 : 010-1234-1234)', '전화번호를 알려주세요.(예시 : 010-1234-1234)', '예약자 분의 번호를 입력해주세요.(예시 : 010-1234-1234)']
 answer_date_arr = ['몇 월 며칠에 예약하고 싶으신가요?', '예약하고 싶은 월일을 입력해주세요. (예시: 1월 3일)', '예약하시려는 날짜를 알려주세요.']
@@ -125,24 +126,25 @@ while True:
             r_person = str(person_dict[value])+'명'
         
     for i in range(0,len(inferred_tags[0])):
-        if inferred_tags[0][i]=='날짜':
-            if r_date == '': r_num += 1
-            r_date += token_list[i]     
-        elif inferred_tags[0][i]=='시작시간':
-            if r_start_time == '': r_num += 1
-            r_start_time += token_list[i]     
-        elif inferred_tags[0][i]=='종료시간':
-            if r_end_time == '': r_num += 1
-            r_end_time += token_list[i]     
-        elif inferred_tags[0][i]=='인원':
-            if r_person == '': r_num += 1
-            r_person += token_list[i] 
-        elif inferred_tags[0][i]=='이름':
-            if r_name == '': r_num += 1
-            r_name += token_list[i]
-        elif inferred_tags[0][i]=='번호':
-            if r_phone_no == '': r_num += 1
-            r_phone_no += token_list[i]   
+        if slots_score[0][i] >= score_limit:
+            if inferred_tags[0][i]=='날짜':
+                if r_date == '': r_num += 1
+                r_date += token_list[i]     
+            elif inferred_tags[0][i]=='시작시간':
+                if r_start_time == '': r_num += 1
+                r_start_time += token_list[i]     
+            elif inferred_tags[0][i]=='종료시간':
+                if r_end_time == '': r_num += 1
+                r_end_time += token_list[i]     
+            elif inferred_tags[0][i]=='인원':
+                if r_person == '': r_num += 1
+                r_person += token_list[i] 
+            elif inferred_tags[0][i]=='이름':
+                if r_name == '': r_num += 1
+                r_name += token_list[i]
+            elif inferred_tags[0][i]=='번호':
+                if r_phone_no == '': r_num += 1
+                r_phone_no += token_list[i]   
     
     print('r_date = ',r_date)
     print('r_start_time = ',r_start_time)
