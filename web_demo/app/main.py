@@ -50,6 +50,7 @@ def home():
 # 슬롯 사전 만들기
     app.slot_dict = {'start': '', 'end': '', 'date': '', 'person': '', 'name': '', 'phone': ''}
     app.filled_num = 0
+    app.question = "all"
 
     return render_template("index.html")
 
@@ -81,12 +82,12 @@ def get_bot_response():
     
     today = datetime.now()
     for key, value in enumerate(date_dict):
-        if value in input_text:
+        if value in userText:
             date_val = today + timedelta(days=date_dict[value])
             app.slot_dict['date'] = str(date_val.month) + "월" + str(date_val.day) + "일"
             
     for key, value in enumerate(person_dict):
-        if value in input_text:
+        if value in userText:
             app.slot_dict['person'] = str(person_dict[value])+'명'
 
     try:
@@ -95,19 +96,27 @@ def get_bot_response():
             if slots_score[0][i] >= score_limit:
                 if inferred_tags[0][i]=='날짜':
                     if app.slot_dict['date'] == "": app.filled_num += 1
-                    app.slot_dict['date'] += token_list[i]     
+                    app.slot_dict['date'] += token_list[i]
+
                 elif inferred_tags[0][i]=='시작시간':
                     if app.slot_dict['start'] == "": app.filled_num += 1
-                    app.slot_dict['start'] += token_list[i]     
+                    if app.question != "end":
+                        app.slot_dict['start'] += token_list[i]
+                    else:
+                        app.slot_dict['end'] += token_list[i]
+
                 elif inferred_tags[0][i]=='종료시간':
                     if app.slot_dict['end'] == "": app.filled_num += 1
                     app.slot_dict['end'] += token_list[i]     
+
                 elif inferred_tags[0][i]=='인원':
                     if app.slot_dict['person'] == "": app.filled_num += 1
                     app.slot_dict['person'] += token_list[i] 
+
                 elif inferred_tags[0][i]=='이름':
                     if app.slot_dict['name'] == "": app.filled_num += 1
                     app.slot_dict['name'] += token_list[i]
+
                 elif inferred_tags[0][i]=='번호':
                     if app.slot_dict['phone'] == "": app.filled_num += 1
                     app.slot_dict['phone'] += token_list[i]   
@@ -127,20 +136,28 @@ def get_bot_response():
 
         else:
             if app.slot_dict['date'] == '':
+                app.question = "date"
                 return str(np.random.choice(answer_date_arr, 1)[0])+ response
             elif app.slot_dict['start'] == '':
+                app.question = "start"
                 return str(np.random.choice(answer_start_arr, 1)[0]) + response
             elif app.slot_dict['end'] == '':
+                app.question = "end"
                 return str(np.random.choice(answer_end_arr, 1)[0]) + response
             elif app.slot_dict['person'] == '':
+                app.question = "person"
                 return str(np.random.choice(answer_person_arr, 1)[0]) + response
             elif app.slot_dict['name'] == '':
+                app.question = "name"
                 return str(np.random.choice(answer_name_arr, 1)[0]) + response
             elif app.slot_dict['phone'] == '':
+                app.question = "phone"
                 return str(np.random.choice(answer_phone_arr, 1)[0]) + response
 
     except Exception as e:
-        print(e)
-        return str(e) + "<br>오류가 발생했습니다, 페이지를 다시 열어주세요"
+        if app.debug: 
+            return str(e)
+        else: 
+            return "<br>오류가 발생했습니다, 페이지를 다시 열어주세요"
     
     return "이 문장은 출력될 일이 없습니다."
