@@ -63,7 +63,7 @@ answer_end_arr = ['몇 시까지 이용하실 건가요?', '언제까지 사용�
 answer_person_arr = ['총 몇 명이신가요?', '몇 명이서 쓰실 건가요?', '이용 인원을 말씀해주세요?']
 
 date_dict = {'오늘':0,'금일':0,'내일':1,'낼':1,'모레':2}
-person_dict = {'혼자':1,'두명':2,'둘이':2,'세명':3,'셋이':3,'네명':4,'다섯':5,'여섯':6,'일곱':7,'여덟':8}
+person_dict = {'한명':1,'혼자':1,'두명':2,'둘이':2,'세명':3,'셋이':3,'네명':4,'다섯':5,'여섯':6,'일곱':7,'여덟':8}
 
 @app.route("/get")
 def get_bot_response():
@@ -74,52 +74,62 @@ def get_bot_response():
     token_list = input_text.split()
     data_text_arr = [input_text]
     data_input_ids, data_input_mask, data_segment_ids = bert_to_array.transform(data_text_arr)
+
+    input_date = ''
+    input_start = ''
+    input_end = ''
+    input_person = ''
+    input_name = ''
+    input_phone = ''
     
     #모델 불러오고 슬롯태깅
     with graph.as_default():
         with sess.as_default():
             inferred_tags, slots_score = model.predict_slots([data_input_ids, data_input_mask, data_segment_ids], tags_to_array)
-    
-    today = datetime.now()
-    for key, value in enumerate(date_dict):
-        if value in userText:
-            date_val = today + timedelta(days=date_dict[value])
-            app.slot_dict['date'] = str(date_val.month) + "월" + str(date_val.day) + "일"
-            
-    for key, value in enumerate(person_dict):
-        if value in userText:
-            app.slot_dict['person'] = str(person_dict[value])+'명'
 
     try:
         # 1. 사용자가 입력한 한 문장을 슬롯태깅 모델에 넣어서 결과 뽑아내기
         for i in range(0,len(inferred_tags[0])):
             if slots_score[0][i] >= score_limit:
                 if inferred_tags[0][i]=='날짜':
-                    if app.slot_dict['date'] == "": app.filled_num += 1
-                    app.slot_dict['date'] += token_list[i]
+                    input_date += token_list[i]
+                    app.slot_dict['date'] = input_date
 
                 elif inferred_tags[0][i]=='시작시간':
-                    if app.slot_dict['start'] == "": app.filled_num += 1
+                    input_start += token_list[i]
+
                     if app.question != "end":
-                        app.slot_dict['start'] += token_list[i]
+                        app.slot_dict['start'] = input_start
                     else:
-                        app.slot_dict['end'] += token_list[i]
+                        app.slot_dict['end'] = input_start
 
                 elif inferred_tags[0][i]=='종료시간':
-                    if app.slot_dict['end'] == "": app.filled_num += 1
-                    app.slot_dict['end'] += token_list[i]     
+                    input_end += token_list[i]
+                    app.slot_dict['end'] = input_end
 
                 elif inferred_tags[0][i]=='인원':
-                    if app.slot_dict['person'] == "": app.filled_num += 1
-                    app.slot_dict['person'] += token_list[i] 
+                    input_person += token_list[i]
+                    app.slot_dict['person'] = input_person
 
                 elif inferred_tags[0][i]=='이름':
-                    if app.slot_dict['name'] == "": app.filled_num += 1
-                    app.slot_dict['name'] += token_list[i]
+                    input_name += token_list[i]
+                    app.slot_dict['name'] = input_name
 
                 elif inferred_tags[0][i]=='번호':
-                    if app.slot_dict['phone'] == "": app.filled_num += 1
-                    app.slot_dict['phone'] += token_list[i]   
+                    input_phone += token_list[i]
+                    app.slot_dict['phone'] = input_phone
+
+        # 날짜에 관련된 문구가 있을때 아래 값으로 대처함
+        today = datetime.now()
+        for key, value in enumerate(date_dict):
+            if value in userText:
+                date_val = today + timedelta(days=date_dict[value])
+                app.slot_dict['date'] = str(date_val.month) + "월" + str(date_val.day) + "일"
+
+        # 인원에 관련된 문구가 있을때 아래 값으로 대처함
+        for key, value in enumerate(person_dict):
+            if value in userText:
+                app.slot_dict['person'] = str(person_dict[value]) + '명'
         
         # 디버깅용 상태 표시 문장
         if app.debug:
@@ -129,7 +139,8 @@ def get_bot_response():
 
         # 2. 추출된 슬롯 정보를 가지고 더 필요한 정보 물어보는 규칙 만들기 (if문)
         if ((app.slot_dict['start'] != "") and (app.slot_dict['end'] != "") and (app.slot_dict['person'] != "")and (app.slot_dict['date'] != "") and (app.slot_dict['name'] != "") and (app.slot_dict['phone'] != "")):
-            return '예약이 완료되었습니다. 예약을 종료합니다.' + response
+            #return '예약이 완료되었습니다. 예약을 종료합니다.' + response
+            return app.slot_dict['name']+'님 ' + app.slot_dict['date'] + ' ' + app.slot_dict['start'] + '부터 ' + app.slot_dict['end'] + '까지 ' + app.slot_dict['person'] + ' 으로 예약되었습니다. ' + app.slot_dict['phone'] + '으로 문자 보내드리겠습니다. 감사합니다.' + response
     
         elif ((app.slot_dict['start'] == "") and (app.slot_dict['end'] == "") and (app.slot_dict['person'] == "") and (app.slot_dict['date'] == "") and (app.slot_dict['name'] == "") and (app.slot_dict['phone'] == "")):
             return '죄송합니다 제가 이해를 잘 못해서 다시 한번 입력해주세요.' + response
