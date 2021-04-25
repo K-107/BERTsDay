@@ -2,6 +2,7 @@
 from flask import Flask, render_template, request
 from flask_ngrok import run_with_ngrok
 import os
+import re
 import sys
 import pickle
 import tensorflow as tf
@@ -55,15 +56,46 @@ def home():
     return render_template("index.html")
 
 score_limit = 0.75  
-answer_name_arr = ['성함이 어떻게 되시나요?', '이름을 말해주세요.']
-answer_phone_arr = ['연락 가능한 번호를 써주세요.(예시 : 010-1234-1234)', '전화번호를 알려주세요.(예시 : 010-1234-1234)', '예약자 분의 번호를 입력해주세요.(예시 : 010-1234-1234)']
-answer_date_arr = ['몇 월 며칠에 예약하고 싶으신가요?', '예약하고 싶은 월일을 입력해주세요. (예시: 1월 3일)', '예약하시려는 날짜를 알려주세요.']
-answer_start_arr = ['몇 시로 예약하실 건가요?', '몇 시부터 사용하실 건가요?', '사용 시작 시간을 알려주세요.']
-answer_end_arr = ['몇 시까지 이용하실 건가요?', '언제까지 사용하실 건가요?', '종료 시간을 알려주세요.']
-answer_person_arr = ['총 몇 명이신가요?', '몇 명이서 쓰실 건가요?', '이용 인원을 말씀해주세요?']
+answer_first_arr = ['안녕하세요! 스터디룸 예약 챗봇입니다. 이렇게 방문해 주셔서 감사합니다 이제 예약을 도와드릴게요',
+	                '안녕하세요. 현재 저희 스터디룸은 코로나19의 확산에 따른 잠재적 전염 위험에 대비하여 정부의 방역 지침에 따라 운영 중에 있습니다. 보다 자세한 사항에 대해서는 시설 내 비치되어 있는 책자에 구체적으로 나와있으니 이에 따라주시면 대단히 감사하겠습니다.',
+	                '안녕하세요. 오늘도 저희 스터디룸을 찾아주셔서 감사드립니다.']
 
-date_dict = {'오늘':0,'금일':0,'내일':1,'낼':1,'모레':2}
-person_dict = {'한명':1,'혼자':1,'두명':2,'둘이':2,'세명':3,'셋이':3,'네명':4,'다섯':5,'여섯':6,'일곱':7,'여덟':8}
+answer_last_arr = ['저희 K-107 스터디룸을 이용해주셔서 감사합니다! 예약 당일 본 건물 2층으로 올라오신 후 정면의 문으로 들어오시면 바로 우측에 직원이 있으니 그쪽에서 먼저 결제한 후에 각 방으로 안내를 받으시면 됩니다.	또한 앞서 예약하신 사항에 대해서는 입력하신 번호로 문자를 발송해드리고 있으니 잠시 후 확인 부탁드립니다. 저희 스터디룸을 예약해주셔서 다시 한번 감사합니다∼']
+
+answer_confirm_arr = ['총 몇 명이신가요?',
+                     '/이름;/날짜;/번호;/시작시간;/부터/종료시간;/까지로 맞으신가요? 맞다면 이대로 예약 진행하도록 하겠습니다.']
+
+answer_name_arr = ['성함이 어떻게 되시나요?',
+                   '이름을 말해주세요.',
+                   '예약하시는 분 성함이 어떻게 되시나요?',
+                   '예약자님 성함도 한번만 알려주시겠어요?']
+answer_phone_arr = ['연락 가능한 번호를 써주세요.(예시 : 010-1234-1234)',
+                    '전화번호를 알려주세요.(예시 : 010-1234-1234)',
+                    '예약자 분의 번호를 입력해주세요.(예시 : 010-1234-1234)',
+                    '연락 가능한 번호 하나만 남겨주시겠어요? (000-0000-0000)',
+                    '예약하시는 분께 연락할 수 있는 번호를 남겨주시겠어요? 추후 예약 진행상황을 문자로 알려드릴 예정이니 정확히 기입 부탁드립니다.']
+answer_date_arr = ['몇 월 며칠에 예약하고 싶으신가요?',
+                   '예약하고 싶은 월일을 입력해주세요. (예시: 1월 3일)',
+                   '예약하시려는 날짜를 알려주세요.',
+                   '방문하시려는 날짜는 언제인가요?']
+answer_start_arr = ['몇 시로 예약하실 건가요?',
+                    '몇 시부터 사용하실 건가요?',
+                    '사용 시작 시간을 알려주세요.',
+                    '도착시간은 언제이신가요? (본 스터디룸은 정각을 기준으로 예약을 받고 있습니다.)',
+                    '사용 시작시간은 어떻게 되나요?']
+answer_end_arr = ['몇 시까지 이용하실 건가요?',
+                  '언제까지 사용하실 건가요?',
+                  '종료 시간을 알려주세요.',
+                  '사용은 몇시까지 하실 예정이신가요?',
+                  '몇시까지 이용할 계획이신가요?']
+answer_start_end_arr = ['몇시부터 몇시까지 이용하실 예정이신가요?',
+                        '스터디룸 이용은 몇시부터 몇시까지 하실 계획이신가요?']
+answer_person_arr = ['총 몇 명이신가요?',
+                     '몇 명이서 쓰실 건가요?',
+                     '이용 인원을 말씀해주세요?']
+
+date_dict = {'오늘': 0, '금일': 0, '내일': 1, '낼': 1, '모레': 2}
+person_dict = {'한명': 1, '혼자': 1, '두명': 2, '둘이': 2, '세명': 3, '셋이': 3, '네명': 4, '다섯': 5, '여섯': 6, '일곱': 7, '여덟': 8}
 
 @app.route("/get")
 def get_bot_response():
@@ -93,31 +125,31 @@ def get_bot_response():
             if slots_score[0][i] >= score_limit:
                 if inferred_tags[0][i]=='날짜':
                     input_date += token_list[i]
-                    app.slot_dict['date'] = input_date
+                    app.slot_dict['date'] = re.sub('_','',input_date)
 
                 elif inferred_tags[0][i]=='시작시간':
                     input_start += token_list[i]
 
                     if app.question != "end":
-                        app.slot_dict['start'] = input_start
+                        app.slot_dict['start'] = re.sub('_','',input_start)
                     else:
-                        app.slot_dict['end'] = input_start
+                        app.slot_dict['end'] = re.sub('_','',input_start)
 
                 elif inferred_tags[0][i]=='종료시간':
                     input_end += token_list[i]
-                    app.slot_dict['end'] = input_end
+                    app.slot_dict['end'] = re.sub('_','',input_end)
 
                 elif inferred_tags[0][i]=='인원':
                     input_person += token_list[i]
-                    app.slot_dict['person'] = input_person
+                    app.slot_dict['person'] = re.sub('_','',input_person)
 
                 elif inferred_tags[0][i]=='이름':
                     input_name += token_list[i]
-                    app.slot_dict['name'] = input_name
+                    app.slot_dict['name'] = re.sub('_','',input_name)
 
                 elif inferred_tags[0][i]=='번호':
                     input_phone += token_list[i]
-                    app.slot_dict['phone'] = input_phone
+                    app.slot_dict['phone'] = re.sub('_','',input_phone)
 
         # 날짜에 관련된 문구가 있을때 아래 값으로 대처함
         today = datetime.now()
@@ -133,9 +165,16 @@ def get_bot_response():
         
         # 디버깅용 상태 표시 문장
         if app.debug:
-                response = f"<br><br>slot_dict: {app.slot_dict}<br>input_text: {token_list}<br>inferred_tags: {inferred_tags} <br>slots_score: {slots_score}"
+            response = f"<br><br>slot_dict: {app.slot_dict}<br>input_text: {token_list}<br>inferred_tags: {inferred_tags} <br>slots_score: {slots_score}"
         else:
-                response = ""
+            response = ""
+
+        # 전화번호 형식 체크
+        if re.compile(r'^010-[0-9]{4}-[0-9]{4}$').search(app.slot_dict['phone']):
+            app.slot_dict['phone'] = app.slot_dict['phone']
+        else:
+            app.slot_dict['phone'] = ''
+            return '연락처 형식이 잘못되었습니다.' + response
 
         # 2. 추출된 슬롯 정보를 가지고 더 필요한 정보 물어보는 규칙 만들기 (if문)
         if ((app.slot_dict['start'] != "") and (app.slot_dict['end'] != "") and (app.slot_dict['person'] != "")and (app.slot_dict['date'] != "") and (app.slot_dict['name'] != "") and (app.slot_dict['phone'] != "")):
