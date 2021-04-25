@@ -98,7 +98,7 @@ answer_person_arr = ['총 몇 명이신가요?',
                      '이용 인원을 말씀해주세요?']
 
 date_dict = {'오늘': 0, '금일': 0, '내일': 1, '낼': 1, '모레': 2}
-person_dict = {'한명': 1, '혼자': 1, '두명': 2, '둘이': 2, '세명': 3, '셋이': 3, '네명': 4, '다섯': 5, '여섯': 6, '일곱': 7, '여덟': 8}
+person_dict = {'한명': 1, '혼자': 1, '둘': 2, '두명': 2, '둘이': 2, '셋': 3, '세명': 3, '셋이': 3, '넷': 4, '네명': 4, '다섯': 5, '여섯': 6, '일곱': 7, '여덟': 8}
 
 @app.route("/get")
 def get_bot_response():
@@ -179,11 +179,35 @@ def get_bot_response():
             response = ""
 
         # 전화번호 형식 체크
-        if re.compile(r'^010-[0-9]{4}-[0-9]{4}$').search(app.slot_dict['phone']):
-            app.slot_dict['phone'] = app.slot_dict['phone']
-        else:
-            app.slot_dict['phone'] = ''
-            return '연락처 형식이 잘못되었습니다.' + response
+        if app.slot_dict['phone'] != '':
+            if re.compile(r'^010-[0-9]{4}-[0-9]{4}$').search(app.slot_dict['phone']):
+                app.slot_dict['phone'] = app.slot_dict['phone']
+            else:
+                app.slot_dict['phone'] = ''
+                return '연락처 형식이 잘못되었습니다.' + response
+
+        # 시작시간 형식 체크
+        if app.slot_dict['start'] != '':
+            if re.compile(r'^1?[0-9]시$').search(app.slot_dict['start']):
+                app.slot_dict['start'] = app.slot_dict['start']
+            else:
+                app.slot_dict['start'] = ''
+                return '시작시간 형식이 잘못되었습니다.' + response
+
+        # 종료시간 형식 체크
+        if app.slot_dict['end'] != '':
+            if re.compile(r'^1?[0-9]시$').search(app.slot_dict['end']):
+                app.slot_dict['end'] = app.slot_dict['end']
+            else:
+                app.slot_dict['end'] = ''
+                return '종료시간 형식이 잘못되었습니다.' + response
+
+        # 시작시간과 종료시간 체크
+        if (app.slot_dict['start'] != '') and (app.slot_dict['end'] != ''):
+            if  int(re.sub('시','',app.slot_dict['start'])) > int(re.sub('시','',app.slot_dict['end'])):
+                app.slot_dict['start'] = ''
+                app.slot_dict['end'] = ''
+                return '시간 입력이 잘못되었습니다. 다시 입력해주세요.' + response
 
         # 2. 추출된 슬롯 정보를 가지고 더 필요한 정보 물어보는 규칙 만들기 (if문)
         if ((app.slot_dict['start'] != "") and (app.slot_dict['end'] != "") and (app.slot_dict['person'] != "")and (app.slot_dict['date'] != "") and (app.slot_dict['name'] != "") and (app.slot_dict['phone'] != "")):
