@@ -104,11 +104,11 @@ person_dict = {'한명': 1, '혼자': 1, '두명': 2, '둘이': 2, '세명': 3, 
 def get_bot_response():
     userText = request.args.get('msg').strip() # 사용자가 입력한 문장
 
-    if app.input_idx == 0:
+    app.input_idx += 1
+    if app.input_idx == 1:
         for txt in greeting_arr:
             if txt in userText:
                 return str(np.random.choice(answer_first_arr, 1)[0])
-    app.input_idx += 1
 
     #벡터화
     input_text = ' '.join(tokenizer.tokenize(userText))
@@ -197,6 +197,9 @@ def get_bot_response():
             if app.slot_dict['date'] == '':
                 app.question = "date"
                 return str(np.random.choice(answer_date_arr, 1)[0])+ response
+            elif (app.slot_dict['start'] == '') and (app.slot_dict['end'] == ''):
+                app.question = "start"
+                return str(np.random.choice(answer_start_end_arr, 1)[0]) + response
             elif app.slot_dict['start'] == '':
                 app.question = "start"
                 return str(np.random.choice(answer_start_arr, 1)[0]) + response
