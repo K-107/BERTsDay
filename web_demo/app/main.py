@@ -52,10 +52,13 @@ def home():
     app.slot_dict = {'start': '', 'end': '', 'date': '', 'person': '', 'name': '', 'phone': ''}
     app.filled_num = 0
     app.question = "all"
+    app.input_idx = 0
+    app.score_limit = 0.75
 
     return render_template("index.html")
 
-score_limit = 0.75  
+greeting_arr = ['안녕하세요', '안녕하세요.', '안녕하세요~', '안녕', '안녕~', '안녕!', '안뇽']
+
 answer_first_arr = ['안녕하세요! 스터디룸 예약 챗봇입니다. 이렇게 방문해 주셔서 감사합니다 이제 예약을 도와드릴게요',
 	                '안녕하세요. 현재 저희 스터디룸은 코로나19의 확산에 따른 잠재적 전염 위험에 대비하여 정부의 방역 지침에 따라 운영 중에 있습니다. 보다 자세한 사항에 대해서는 시설 내 비치되어 있는 책자에 구체적으로 나와있으니 이에 따라주시면 대단히 감사하겠습니다.',
 	                '안녕하세요. 오늘도 저희 스터디룸을 찾아주셔서 감사드립니다.']
@@ -101,6 +104,12 @@ person_dict = {'한명': 1, '혼자': 1, '두명': 2, '둘이': 2, '세명': 3, 
 def get_bot_response():
     userText = request.args.get('msg').strip() # 사용자가 입력한 문장
 
+    if app.input_idx == 0:
+        for txt in greeting_arr:
+            if txt in userText:
+                return str(np.random.choice(answer_first_arr, 1)[0])
+    app.input_idx += 1
+
     #벡터화
     input_text = ' '.join(tokenizer.tokenize(userText))
     token_list = input_text.split()
@@ -122,7 +131,7 @@ def get_bot_response():
     try:
         # 1. 사용자가 입력한 한 문장을 슬롯태깅 모델에 넣어서 결과 뽑아내기
         for i in range(0,len(inferred_tags[0])):
-            if slots_score[0][i] >= score_limit:
+            if slots_score[0][i] >= app.score_limit:
                 if inferred_tags[0][i]=='날짜':
                     input_date += token_list[i]
                     app.slot_dict['date'] = re.sub('_','',input_date)
@@ -153,15 +162,15 @@ def get_bot_response():
 
         # 날짜에 관련된 문구가 있을때 아래 값으로 대처함
         today = datetime.now()
-        for key, value in enumerate(date_dict):
-            if value in userText:
-                date_val = today + timedelta(days=date_dict[value])
+        for key, value in date_dict.items():
+            if key in userText:
+                date_val = today + timedelta(days=value)
                 app.slot_dict['date'] = str(date_val.month) + "월" + str(date_val.day) + "일"
 
         # 인원에 관련된 문구가 있을때 아래 값으로 대처함
-        for key, value in enumerate(person_dict):
-            if value in userText:
-                app.slot_dict['person'] = str(person_dict[value]) + '명'
+        for key, value in person_dict.items():
+            if key in userText:
+                app.slot_dict['person'] = str(value) + '명'
         
         # 디버깅용 상태 표시 문장
         if app.debug:
