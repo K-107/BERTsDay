@@ -44,6 +44,7 @@ print("===============초기화 완료===============")
 app = Flask("BERTsDay Chatbot")
 app.static_folder = 'web_demo/app/static'
 app.template_folder = "web_demo/app/templates"
+run_with_ngrok(app)
 
 @app.route("/")
 def home():
