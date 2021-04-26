@@ -46,9 +46,14 @@ app.static_folder = 'web_demo/app/static'
 app.template_folder = "web_demo/app/templates"
 run_with_ngrok(app)
 
+def writeLog(content: str):
+    now = datetime.now()
+    with open(f"log {datetime.year}-{datetime.month}-{datetime.day}.log", "a") as f: # log 2020-04-26.log
+        writeLen = f.write(content)
+    return writeLen #실제로 작성되 글자 수
+
 @app.route("/")
 def home():
-############################### TODO ##########################################
 # 슬롯 사전 만들기
     app.slot_dict = {'start': '', 'end': '', 'date': '', 'person': '', 'name': '', 'phone': ''}
     app.filled_num = 0
@@ -219,6 +224,7 @@ def get_bot_response():
             return '죄송합니다 제가 이해를 잘 못해서 다시 한번 입력해주세요.' + response
 
         else:
+            # 슬롯이 채워지지 않은 것이 있다면 질문 던지기
             if app.slot_dict['date'] == '':
                 app.question = "date"
                 return str(np.random.choice(answer_date_arr, 1)[0])+ response
@@ -248,3 +254,5 @@ def get_bot_response():
             return "<br>오류가 발생했습니다, 페이지를 다시 열어주세요"
     
     return "이 문장은 출력될 일이 없습니다."
+
+
