@@ -1,4 +1,4 @@
-
+*.log
 .vscode/
 Fine_tuned
 Bert_pretrained

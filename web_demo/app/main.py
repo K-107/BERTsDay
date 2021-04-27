@@ -14,6 +14,7 @@ from to_array.bert_to_array import BERTToArray
 from models.bert_slot_model import BertSlotModel
 from to_array.tokenizationK import FullTokenizer
 from sklearn import metrics
+import traceback
 
 load_folder_path = os.path.join(os.getcwd(), "Fine_tuned") # 파인튜닝 경로
 bert_model_hub_path = os.path.join(os.getcwd(), "Bert_pretrained") #프리트레인 경로
@@ -39,18 +40,33 @@ model = BertSlotModel.load(load_folder_path, sess)
 tokenizer = FullTokenizer(vocab_file=vocab_file)
 print("===============초기화 완료===============")
 
+#로그 쓰기
+def writeLog(content: str, level=0):
+    logLevel=["INFO", "WARNING", "ERROR", "TRACE"]
+    now = datetime.now()
+    columns = "#level, time, content\n"
+    try:
+        with open(f"log {now.year}-{now.month}-{now.day}.log", "r+") as f: # 예) log 2021-04-26.log
+            try:
+                first = f.readline()
+                if first != columns:
+                    f.write(columns)
+                f.write(f"\"{logLevel[level]}\", \"{now.year}-{now.month}-{now.day} {now.hour}:{now.minute}:{now.second}.{now.microsecond}\", \"{content}\"\n")
+            except Exception as e:
+                print("로그 파일 작성 중 오류 발생:", e)
+
+    except FileNotFoundError as e:
+        #파일이 없으면 파일 새로 만들기
+        f = open(f"log {now.year}-{now.month}-{now.day}.log", "a")
 
 # 플라스크 앱 초기화
 app = Flask("BERTsDay Chatbot")
 app.static_folder = 'web_demo/app/static'
 app.template_folder = "web_demo/app/templates"
-run_with_ngrok(app)
+#run_with_ngrok(app)
+writeLog("서버 시작", 0)
 
-def writeLog(content: str):
-    now = datetime.now()
-    with open(f"log {datetime.year}-{datetime.month}-{datetime.day}.log", "a") as f: # log 2020-04-26.log
-        writeLen = f.write(content)
-    return writeLen #실제로 작성되 글자 수
+
 
 @app.route("/")
 def home():
@@ -114,6 +130,7 @@ def get_bot_response():
     if app.input_idx == 1:
         for txt in greeting_arr:
             if txt in userText:
+                writeLog(f"인사말 리턴, raw_input: {userText}", 0)
                 return str(np.random.choice(answer_first_arr, 1)[0])
 
     #벡터화
@@ -172,11 +189,13 @@ def get_bot_response():
             if key in userText:
                 date_val = today + timedelta(days=value)
                 app.slot_dict['date'] = str(date_val.month) + "월" + str(date_val.day) + "일"
+                writeLog(f"시간을 표현한 문구가 있어서 값이 대체됨, raw_input: {userText}")
 
         # 인원에 관련된 문구가 있을때 아래 값으로 대처함
         for key, value in person_dict.items():
             if key in userText:
                 app.slot_dict['person'] = str(value) + '명'
+                writeLog(f"인원에 관련된 문구가 있어서 값이 대체됨, raw_input: {userText}")
         
         # 디버깅용 상태 표시 문장
         if app.debug:
@@ -190,6 +209,7 @@ def get_bot_response():
                 app.slot_dict['phone'] = app.slot_dict['phone']
             else:
                 app.slot_dict['phone'] = ''
+                writeLog(f"잘못된 연락처 형식, raw_input: {userText}")
                 return '연락처 형식이 잘못되었습니다.' + response
 
         # 시작시간 형식 체크
@@ -198,6 +218,7 @@ def get_bot_response():
                 app.slot_dict['start'] = app.slot_dict['start']
             else:
                 app.slot_dict['start'] = ''
+                writeLog(f"잘못된 시간 형식, raw_input: {userText}")
                 return '시작시간 형식이 잘못되었습니다.' + response
 
         # 종료시간 형식 체크
@@ -206,6 +227,7 @@ def get_bot_response():
                 app.slot_dict['end'] = app.slot_dict['end']
             else:
                 app.slot_dict['end'] = ''
+                writeLog(f"잘못된 시간 형식, raw_input: {userText}")
                 return '종료시간 형식이 잘못되었습니다.' + response
 
         # 시작시간과 종료시간 체크
@@ -218,13 +240,16 @@ def get_bot_response():
         # 2. 추출된 슬롯 정보를 가지고 더 필요한 정보 물어보는 규칙 만들기 (if문)
         if ((app.slot_dict['start'] != "") and (app.slot_dict['end'] != "") and (app.slot_dict['person'] != "")and (app.slot_dict['date'] != "") and (app.slot_dict['name'] != "") and (app.slot_dict['phone'] != "")):
             #return '예약이 완료되었습니다. 예약을 종료합니다.' + response
+            writeLog(f"예약 완료, raw_input: {userText}, slot_dict: {app.slot_dict}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}", 0)
             return app.slot_dict['name']+'님 ' + app.slot_dict['date'] + ' ' + app.slot_dict['start'] + '부터 ' + app.slot_dict['end'] + '까지 ' + app.slot_dict['person'] + ' 으로 예약되었습니다. ' + app.slot_dict['phone'] + '으로 문자 보내드리겠습니다. 감사합니다.' + response
     
         elif ((app.slot_dict['start'] == "") and (app.slot_dict['end'] == "") and (app.slot_dict['person'] == "") and (app.slot_dict['date'] == "") and (app.slot_dict['name'] == "") and (app.slot_dict['phone'] == "")):
+            writeLog(f"슬롯이 빈 상태에서 주어진 알 수 없는 입력, raw_input: {userText}, slot_dict: {app.slot_dict}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}", 0)
             return '죄송합니다 제가 이해를 잘 못해서 다시 한번 입력해주세요.' + response
 
         else:
             # 슬롯이 채워지지 않은 것이 있다면 질문 던지기
+            writeLog(f"슬롯이 덜 채워져서 질문 던짐, raw_input: {userText}, slot_dict: {app.slot_dict}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}", 0)
             if app.slot_dict['date'] == '':
                 app.question = "date"
                 return str(np.random.choice(answer_date_arr, 1)[0])+ response
@@ -248,6 +273,12 @@ def get_bot_response():
                 return str(np.random.choice(answer_phone_arr, 1)[0]) + response
 
     except Exception as e:
+        #예외 로깅
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        writeLog(str(e), 3)
+        for tb in traceback.format_exception(exc_type, exc_value, exc_traceback):
+            writeLog(tb.strip(), 4)
+        
         if app.debug: 
             return str(e)
         else: 
