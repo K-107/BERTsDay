@@ -161,7 +161,6 @@ def get_bot_response():
 
                 elif inferred_tags[0][i]=='시작시간':
                     input_start += token_list[i]
-
                     if app.question != "end":
                         app.slot_dict['start'] = re.sub('_','',input_start)
                     else:
@@ -203,39 +202,54 @@ def get_bot_response():
         else:
             response = ""
 
-        # 전화번호 형식 체크
-        if app.slot_dict['phone'] != '':
-            if re.compile(r'^010-[0-9]{4}-[0-9]{4}$').search(app.slot_dict['phone']):
-                app.slot_dict['phone'] = app.slot_dict['phone']
-            else:
-                app.slot_dict['phone'] = ''
-                writeLog(f"잘못된 연락처 형식, raw_input: {userText}")
-                return '연락처 형식이 잘못되었습니다.' + response
-
-        # 시작시간 형식 체크
+	# 시작시간 형식 체크
         if app.slot_dict['start'] != '':
-            if re.compile(r'^1?[0-9]시$').search(app.slot_dict['start']):
-                app.slot_dict['start'] = app.slot_dict['start']
-            else:
+            if re.compile(r'^1?[0-9]시$').search(app.slot_dict['start']) == None:
                 app.slot_dict['start'] = ''
                 writeLog(f"잘못된 시간 형식, raw_input: {userText}")
                 return '시작시간 형식이 잘못되었습니다.' + response
 
         # 종료시간 형식 체크
         if app.slot_dict['end'] != '':
-            if re.compile(r'^1?[0-9]시$').search(app.slot_dict['end']):
-                app.slot_dict['end'] = app.slot_dict['end']
-            else:
+            if re.compile(r'^1?[0-9]시$').search(app.slot_dict['end']) == None:
                 app.slot_dict['end'] = ''
                 writeLog(f"잘못된 시간 형식, raw_input: {userText}")
                 return '종료시간 형식이 잘못되었습니다.' + response
 
         # 시작시간과 종료시간 체크
         if (app.slot_dict['start'] != '') and (app.slot_dict['end'] != ''):
-            if  int(re.sub('시','',app.slot_dict['start'])) > int(re.sub('시','',app.slot_dict['end'])):
-                app.slot_dict['start'] = ''
+            start_time = int(re.sub('시', '', app.slot_dict['start']))
+            end_time = int(re.sub('시', '', app.slot_dict['end']))
+
+            if start_time < 10:
+                start_time += 12
+                app.slot_dict['start'] = str(start_time) + '시'
+
+            if end_time < 10:
+                end_time += 12
+                app.slot_dict['end'] = str(end_time) + '시'
+
+            if start_time > end_time:
                 app.slot_dict['end'] = ''
-                return '시간 입력이 잘못되었습니다. 다시 입력해주세요.' + response
+                writeLog(f"잘못된 시작시간-종료시간 범위, raw_input: {userText}")
+                return '종료시간 입력이 잘못되었습니다. 다시 입력해주세요.' + response
+
+        # 인원 체크 : 1~8명까지만 허용
+        if app.slot_dict['person'] != '':
+            if re.compile(r'^[1-8]명$').search(app.slot_dict['person']) == None:
+                app.slot_dict['person'] = ''
+                writeLog(f"잘못된 인원(1~8명만 가능) 범위, raw_input: {userText}")
+                return '인원은 1명에서 8명까지 이용 가능합니다.' + response
+		
+        # 전화번호 형식 체크
+        if app.slot_dict['phone'] != '':
+            if re.compile(r'^010[0-9]{8}$').search(app.slot_dict['phone']):
+                app.slot_dict['phone'] = str(app.slot_dict['phone'][0:3]) + '-' + str(app.slot_dict['phone'][3:7]) + '-' + str(app.slot_dict['phone'][7:11])
+
+            if re.compile(r'^010-[0-9]{4}-[0-9]{4}$').search(app.slot_dict['phone']) == None:
+                app.slot_dict['phone'] = ''
+                writeLog(f"잘못된 연락처 형식, raw_input: {userText}")
+                return '연락처 형식이 잘못되었습니다.' + response
 
         # 2. 추출된 슬롯 정보를 가지고 더 필요한 정보 물어보는 규칙 만들기 (if문)
         if ((app.slot_dict['start'] != "") and (app.slot_dict['end'] != "") and (app.slot_dict['person'] != "")and (app.slot_dict['date'] != "") and (app.slot_dict['name'] != "") and (app.slot_dict['phone'] != "")):
