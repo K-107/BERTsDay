@@ -10,11 +10,16 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 import numpy as np
 sys.path.append(os.path.join(os.getcwd(), "Bert_fine_tuning"))
+#sys.path.append('web_demo/app/')
 from to_array.bert_to_array import BERTToArray
 from models.bert_slot_model import BertSlotModel
 from to_array.tokenizationK import FullTokenizer
 from sklearn import metrics
 import traceback
+import requests
+import json
+from .sms import auth
+from .sms import config as smsconfig
 
 load_folder_path = os.path.join(os.getcwd(), "Fine_tuned") # 파인튜닝 경로
 bert_model_hub_path = os.path.join(os.getcwd(), "Bert_pretrained") #프리트레인 경로
@@ -253,8 +258,18 @@ def get_bot_response():
 
         # 2. 추출된 슬롯 정보를 가지고 더 필요한 정보 물어보는 규칙 만들기 (if문)
         if ((app.slot_dict['start'] != "") and (app.slot_dict['end'] != "") and (app.slot_dict['person'] != "")and (app.slot_dict['date'] != "") and (app.slot_dict['name'] != "") and (app.slot_dict['phone'] != "")):
-            #return '예약이 완료되었습니다. 예약을 종료합니다.' + response
+            #문자 보내기
+            data = {
+                'message': {
+                    'to': app.slot_dict['phone'].replace("-",""),
+                    'from': '01099850384',
+                    'text': "[K-107 스터디룸]" +app.slot_dict['name']+'님 ' + app.slot_dict['date'] + ' ' + app.slot_dict['start'] + '부터 ' + app.slot_dict['end'] + '까지 ' + app.slot_dict['person'] + ' 으로 예약되었습니다. ' # 한글 45자, 영어 90자 이상이면 LMS로 자동 발송
+                }
+            }
+            #res = requests.post(smsconfig.getUrl('/messages/v4/send'), headers=auth.get_headers(smsconfig.apiKey, smsconfig.apiSecret), json=data)
+
             writeLog(f"예약 완료, raw_input: {userText}, slot_dict: {app.slot_dict}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}", 0)
+            #writeLog("문자 보낸 결과: "+json.dumps(json.loads(res.text), indent=2, ensure_ascii=False))
             return app.slot_dict['name']+'님 ' + app.slot_dict['date'] + ' ' + app.slot_dict['start'] + '부터 ' + app.slot_dict['end'] + '까지 ' + app.slot_dict['person'] + ' 으로 예약되었습니다. ' + app.slot_dict['phone'] + '으로 문자 보내드리겠습니다. 감사합니다.' + response
     
         elif ((app.slot_dict['start'] == "") and (app.slot_dict['end'] == "") and (app.slot_dict['person'] == "") and (app.slot_dict['date'] == "") and (app.slot_dict['name'] == "") and (app.slot_dict['phone'] == "")):
