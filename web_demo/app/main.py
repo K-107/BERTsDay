@@ -339,9 +339,9 @@ def get_bot_response():
     except Exception as e:
         #예외 로깅
         exc_type, exc_value, exc_traceback = sys.exc_info()
-        writeLog(str(e), 3)
+        writeLog(str(e), 2)
         for tb in traceback.format_exception(exc_type, exc_value, exc_traceback):
-            writeLog(tb.strip(), 4)
+            writeLog(tb.strip(), 3)
         
         if app.debug: 
             return str(e)
