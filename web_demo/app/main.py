@@ -244,7 +244,7 @@ def get_bot_response():
                 start_time += 12
                 app.slot_dict['start'] = str(start_time) + '시'
 
-            if end_time < 10:
+            if end_time < 11:
                 end_time += 12
                 app.slot_dict['end'] = str(end_time) + '시'
 
@@ -279,11 +279,15 @@ def get_bot_response():
 
         # 이름 형식 체크: 이름이 2~3글자의 한글로만
         if app.slot_dict["name"] != "":
-            if re.compile(r"[가-힣]{2,3}").search(app.slot_dict["name"]) == None or not len(app.slot_dict["name"]) in (2,3):
+            app.slot_dict["name"] = app.slot_dict["name"].replace("_", "") # 띄어쓰기 공백으로
+            searchResult = re.compile(r"[가-힣]{2,3}").search(app.slot_dict["name"]) # 이름으로 추출된 글자들 중에서도 최대 3글자만 추출
+            if searchResult == None:# or not len(app.slot_dict["name"]) in (2,3):
                 app.slot_dict["name"] = ""
                 writeLog(f"잘못된 이름 형식: {userText}")
                 app.question = "name"
                 return "이름은 2~3글자의 한글로만 작성해주세요" + response
+            else:
+                app.slot_dict["name"] = searchResult.group()
 
         # 2. 추출된 슬롯 정보를 가지고 더 필요한 정보 물어보는 규칙 만들기 (if문)
         if ((app.slot_dict['start'] != "") and (app.slot_dict['end'] != "") and (app.slot_dict['person'] != "")and (app.slot_dict['date'] != "") and (app.slot_dict['name'] != "") and (app.slot_dict['phone'] != "")):
