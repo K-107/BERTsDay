@@ -220,14 +220,14 @@ def get_bot_response():
 
 	# 시작시간 형식 체크
         if app.slot_dict['start'] != '':
-            if re.compile(r'^1?[0-9]시$').search(app.slot_dict['start']) == None:
+            if re.compile(r'^1?[0-9]{1,2}시$').search(app.slot_dict['start']) == None:
                 app.slot_dict['start'] = ''
                 writeLog(f"잘못된 시간 형식, raw_input: {userText}")
                 return '시작시간 형식이 잘못되었습니다.' + response
 
         # 종료시간 형식 체크
         if app.slot_dict['end'] != '':
-            if re.compile(r'^1?[0-9]시$').search(app.slot_dict['end']) == None:
+            if re.compile(r'^1?[0-9]{1,2}시$').search(app.slot_dict['end']) == None:
                 app.slot_dict['end'] = ''
                 writeLog(f"잘못된 시간 형식, raw_input: {userText}")
                 return '종료시간 형식이 잘못되었습니다.' + response
