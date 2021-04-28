@@ -57,6 +57,7 @@ def writeLog(content: str, level=0):
                 if first != columns:
                     f.write(columns)
                 f.write(f"\"{logLevel[level]}\", \"{now.year}-{now.month}-{now.day} {now.hour}:{now.minute}:{now.second}.{now.microsecond}\", \"{content}\"\n")
+                f.flush()
             except Exception as e:
                 print("로그 파일 작성 중 오류 발생:", e)
 
@@ -132,12 +133,6 @@ def get_bot_response():
     userText = request.args.get('msg').strip() # 사용자가 입력한 문장
 
     app.input_idx += 1
-    if app.input_idx == 1:
-        for txt in greeting_arr:
-            if txt in userText:
-                writeLog(f"인사말 리턴, raw_input: {userText}", 0)
-                return str(np.random.choice(answer_first_arr, 1)[0])
-
     # 날짜에 관련된 문구가 있을때 아래 값으로 대체함
     today = datetime.now()
     for key, value in date_dict.items():
@@ -181,15 +176,19 @@ def get_bot_response():
                     app.slot_dict['date'] = re.sub('_','',input_date)
 
                 elif inferred_tags[0][i]=='시작시간':
-                    input_start += token_list[i]
                     if app.question != "end":
-                        app.slot_dict['start'] = re.sub('_','',input_start)
+                        input_start += token_list[i]
+                        temp = input_start.replace("_", "")
+                        app.slot_dict['start'] = re.sub('[^0-9]','',temp)
                     else:
-                        app.slot_dict['end'] = re.sub('_','',input_start)
+                        input_end += token_list[i]
+                        temp = input_end.replace("_", "")
+                        app.slot_dict['end'] = re.sub('[^0-9]','',temp)
 
                 elif inferred_tags[0][i]=='종료시간':
                     input_end += token_list[i]
-                    app.slot_dict['end'] = re.sub('_','',input_end)
+                    temp = input_end.replace("_", "")
+                    app.slot_dict['end'] = re.sub('[^0-9]','',temp)
 
                 elif inferred_tags[0][i]=='인원':
                     input_person += token_list[i]
@@ -202,6 +201,16 @@ def get_bot_response():
                 elif inferred_tags[0][i]=='번호':
                     input_phone += token_list[i]
                     app.slot_dict['phone'] = re.sub('_','',input_phone)
+
+        else: #결과를 다 뽑아냈다면
+            # 시작, 종료시간의 끝에 시를 붙임
+            if app.slot_dict['start'] != "" and not app.slot_dict['start'].endswith("시"):
+                app.slot_dict['start'] += "시"
+            if app.slot_dict['end'] != "" and not app.slot_dict['end'].endswith("시"):
+                app.slot_dict['end'] += "시"
+            # 날짜의 끝에 일을 붙임
+            if app.slot_dict['date'] != "" and not app.slot_dict['date'].endswith("일"):
+                app.slot_dict['date'] += "일"
         
         # 디버깅용 상태 표시 문장
         if app.debug:
@@ -267,16 +276,21 @@ def get_bot_response():
                 'message': {
                     'to': app.slot_dict['phone'].replace("-",""),
                     'from': '01099850384',
-                    'text': "[K-107 스터디룸]" +app.slot_dict['name']+'님 ' + app.slot_dict['date'] + ' ' + app.slot_dict['start'] + '부터 ' + app.slot_dict['end'] + '까지 ' + app.slot_dict['person'] + ' 으로 예약되었습니다. ' # 한글 45자, 영어 90자 이상이면 LMS로 자동 발송
+                    'text': "[K-107 스터디룸]" +app.slot_dict['name']+'님 ' + app.slot_dict['date'] + ' ' + app.slot_dict['start'] + '부터 ' + app.slot_dict['end'] + '까지 ' + app.slot_dict['person'] + ' 예약되었습니다. ' # 한글 45자, 영어 90자 이상이면 LMS로 자동 발송
                 }
             }
             #smsResult = requests.post(smsconfig.getUrl('/messages/v4/send'), headers=auth.get_headers(smsconfig.apiKey, smsconfig.apiSecret), json=data)
             #writeLog("문자 보낸 결과: "+json.dumps(json.loads(smsResult.text), indent=2, ensure_ascii=False))
             #print("문자 보낸 결과: "+json.dumps(json.loads(smsResult.text), indent=2, ensure_ascii=False))
-            return app.slot_dict['name']+'님 ' + app.slot_dict['date'] + ' ' + app.slot_dict['start'] + '부터 ' + app.slot_dict['end'] + '까지 ' + app.slot_dict['person'] + ' 으로 예약되었습니다. ' + app.slot_dict['phone'] + '으로 문자 보내드리겠습니다. 감사합니다.' + response
+            return app.slot_dict['name']+'님 ' + app.slot_dict['date'] + ' ' + app.slot_dict['start'] + '부터 ' + app.slot_dict['end'] + '까지 ' + app.slot_dict['person'] + ' 예약되었습니다. ' + app.slot_dict['phone'] + '으로 문자 보내드리겠습니다. 감사합니다.' + response
     
         elif ((app.slot_dict['start'] == "") and (app.slot_dict['end'] == "") and (app.slot_dict['person'] == "") and (app.slot_dict['date'] == "") and (app.slot_dict['name'] == "") and (app.slot_dict['phone'] == "")):
-            writeLog(f"슬롯이 빈 상태에서 주어진 알 수 없는 입력, raw_input: {userText}, slot_dict: {app.slot_dict}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}", 0)
+            for txt in greeting_arr:
+                if txt in userText:
+                    writeLog(f"인사말 리턴, raw_input: {userText}", 0)
+                    return str(np.random.choice(answer_first_arr, 1)[0])
+
+            writeLog(f"슬롯이 빈 상태에서 주어진 알 수 없는 입력, raw_input: {userText}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}", 0)
             return '죄송합니다 제가 이해를 잘 못해서 다시 한번 입력해주세요.' + response
 
         else:
