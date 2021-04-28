@@ -56,7 +56,7 @@ def writeLog(content: str, level=0):
             first = f.readline()
         #파일은 있는데 첫 줄이 본래 방식과 다르면
         if first != columns:
-            with openn(f"log {now.year}-{now.month}-{now.day}.log", "w") as f:
+            with open(f"log {now.year}-{now.month}-{now.day}.log", "w") as f:
                 f.write(columns) #처음부터 다시 쓰기
                 f.flush()
         #로그 쓰기
