@@ -82,9 +82,7 @@ writeLog("서버 시작", 0)
 def home():
 # 슬롯 사전 만들기
     app.slot_dict = {'start': '', 'end': '', 'date': '', 'person': '', 'name': '', 'phone': ''}
-    app.filled_num = 0
     app.question = "all"
-    app.input_idx = 0
     app.score_limit = 0.7
 
     return render_template("index.html")
@@ -136,7 +134,6 @@ person_dict = {'한명': 1, '혼자': 1, '둘': 2, '두명': 2, '둘이': 2, '�
 def get_bot_response():
     userText = request.args.get('msg').strip() # 사용자가 입력한 문장
 
-    app.input_idx += 1
     # 날짜에 관련된 문구가 있을때 아래 값으로 대체함
     today = datetime.now()
     for key, value in date_dict.items():
