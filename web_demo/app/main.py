@@ -336,8 +336,12 @@ def get_bot_response():
                 app.question = "phone"
                 return str(np.random.choice(answer_phone_arr, 1)[0]) + response
 
+    except AttributeError as AE: #세션이 만료됐다면
+        writeLog("AttributeError: " + str(AE), 1)
+        return "F5를 눌러 페이지를 새로고침 해주세요"
+
     except Exception as e:
-        #예외 로깅
+        #그 외 예외 로깅
         exc_type, exc_value, exc_traceback = sys.exc_info()
         writeLog(str(e), 2)
         for tb in traceback.format_exception(exc_type, exc_value, exc_traceback):
