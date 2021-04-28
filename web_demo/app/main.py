@@ -51,19 +51,23 @@ def writeLog(content: str, level=0):
     now = datetime.now()
     columns = "#level, time, content\n"
     try:
+        #로그 파일의 첫번째 줄 읽기 (제대로 된 로그파일인지 검사하기 위함)
         with open(f"log {now.year}-{now.month}-{now.day}.log", "r+") as f: # 예) log 2021-04-26.log
-            try:
-                first = f.readline()
-                if first != columns:
-                    f.write(columns)
-                f.write(f"\"{logLevel[level]}\", \"{now.year}-{now.month}-{now.day} {now.hour}:{now.minute}:{now.second}.{now.microsecond}\", \"{content}\"\n")
+            first = f.readline()
+        #파일은 있는데 첫 줄이 본래 방식과 다르면
+        if first != columns:
+            with openn(f"log {now.year}-{now.month}-{now.day}.log", "w") as f:
+                f.write(columns) #처음부터 다시 쓰기
                 f.flush()
-            except Exception as e:
-                print("로그 파일 작성 중 오류 발생:", e)
-
+        #로그 쓰기
+        with open(f"log {now.year}-{now.month}-{now.day}.log", "a") as f:
+            f.write(f"\"{logLevel[level]}\", \"{now.year}-{now.month}-{now.day} {now.hour}:{now.minute}:{now.second}.{now.microsecond}\", \"{content}\"\n")
+            f.flush()
     except FileNotFoundError as e:
         #파일이 없으면 파일 새로 만들기
         f = open(f"log {now.year}-{now.month}-{now.day}.log", "a")
+    except Exception as e:
+        print("로그 파일 작성 중 오류 발생:", e)
 
 # 플라스크 앱 초기화
 app = Flask("BERTsDay Chatbot")
