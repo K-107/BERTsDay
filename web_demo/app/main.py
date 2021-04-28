@@ -138,6 +138,22 @@ def get_bot_response():
                 writeLog(f"인사말 리턴, raw_input: {userText}", 0)
                 return str(np.random.choice(answer_first_arr, 1)[0])
 
+    # 날짜에 관련된 문구가 있을때 아래 값으로 대체함
+    today = datetime.now()
+    for key, value in date_dict.items():
+        if key in userText:
+            writeLog(f"시간을 표현한 문구가 있어서 값이 대체됨, raw_input: {userText}")
+            date_val = today + timedelta(days=value)
+            userText = userText.replace(key, str(date_val.month) + "월" + str(date_val.day) + "일")
+            
+
+    # 인원에 관련된 문구가 있을때 아래 값으로 대체함
+    for key, value in person_dict.items():
+        if key in userText:
+            writeLog(f"인원에 관련된 문구가 있어서 값이 대체됨, raw_input: {userText}")
+            userText = userText.replace(key, str(value) + '명')
+            
+
     #벡터화
     input_text = ' '.join(tokenizer.tokenize(userText))
     token_list = input_text.split()
@@ -186,20 +202,6 @@ def get_bot_response():
                 elif inferred_tags[0][i]=='번호':
                     input_phone += token_list[i]
                     app.slot_dict['phone'] = re.sub('_','',input_phone)
-
-        # 날짜에 관련된 문구가 있을때 아래 값으로 대처함
-        today = datetime.now()
-        for key, value in date_dict.items():
-            if key in userText:
-                date_val = today + timedelta(days=value)
-                app.slot_dict['date'] = str(date_val.month) + "월" + str(date_val.day) + "일"
-                writeLog(f"시간을 표현한 문구가 있어서 값이 대체됨, raw_input: {userText}")
-
-        # 인원에 관련된 문구가 있을때 아래 값으로 대처함
-        for key, value in person_dict.items():
-            if key in userText:
-                app.slot_dict['person'] = str(value) + '명'
-                writeLog(f"인원에 관련된 문구가 있어서 값이 대체됨, raw_input: {userText}")
         
         # 디버깅용 상태 표시 문장
         if app.debug:
@@ -258,6 +260,8 @@ def get_bot_response():
 
         # 2. 추출된 슬롯 정보를 가지고 더 필요한 정보 물어보는 규칙 만들기 (if문)
         if ((app.slot_dict['start'] != "") and (app.slot_dict['end'] != "") and (app.slot_dict['person'] != "")and (app.slot_dict['date'] != "") and (app.slot_dict['name'] != "") and (app.slot_dict['phone'] != "")):
+            writeLog(f"예약 완료, raw_input: {userText}, slot_dict: {app.slot_dict}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}", 0)
+
             #문자 보내기
             data = {
                 'message': {
@@ -266,10 +270,9 @@ def get_bot_response():
                     'text': "[K-107 스터디룸]" +app.slot_dict['name']+'님 ' + app.slot_dict['date'] + ' ' + app.slot_dict['start'] + '부터 ' + app.slot_dict['end'] + '까지 ' + app.slot_dict['person'] + ' 으로 예약되었습니다. ' # 한글 45자, 영어 90자 이상이면 LMS로 자동 발송
                 }
             }
-            #res = requests.post(smsconfig.getUrl('/messages/v4/send'), headers=auth.get_headers(smsconfig.apiKey, smsconfig.apiSecret), json=data)
-
-            writeLog(f"예약 완료, raw_input: {userText}, slot_dict: {app.slot_dict}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}", 0)
-            #writeLog("문자 보낸 결과: "+json.dumps(json.loads(res.text), indent=2, ensure_ascii=False))
+            #smsResult = requests.post(smsconfig.getUrl('/messages/v4/send'), headers=auth.get_headers(smsconfig.apiKey, smsconfig.apiSecret), json=data)
+            #writeLog("문자 보낸 결과: "+json.dumps(json.loads(smsResult.text), indent=2, ensure_ascii=False))
+            #print("문자 보낸 결과: "+json.dumps(json.loads(smsResult.text), indent=2, ensure_ascii=False))
             return app.slot_dict['name']+'님 ' + app.slot_dict['date'] + ' ' + app.slot_dict['start'] + '부터 ' + app.slot_dict['end'] + '까지 ' + app.slot_dict['person'] + ' 으로 예약되었습니다. ' + app.slot_dict['phone'] + '으로 문자 보내드리겠습니다. 감사합니다.' + response
     
         elif ((app.slot_dict['start'] == "") and (app.slot_dict['end'] == "") and (app.slot_dict['person'] == "") and (app.slot_dict['date'] == "") and (app.slot_dict['name'] == "") and (app.slot_dict['phone'] == "")):
