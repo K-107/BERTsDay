@@ -199,8 +199,10 @@ def get_bot_response():
                     app.slot_dict['person'] = re.sub('_','',input_person)
 
                 elif inferred_tags[0][i]=='이름':
-                    input_name += token_list[i]
-                    app.slot_dict['name'] = re.sub('_','',input_name)
+                    #첫 질문 또는 이름을 물어봤을 때만 채워넣기 (이름 오인식 방지를 위함)
+                    if app.question == "name" or app.question == "all": 
+                        input_name += token_list[i]
+                        app.slot_dict['name'] = re.sub('_','',input_name)
 
                 elif inferred_tags[0][i]=='번호':
                     input_phone += token_list[i]
@@ -222,7 +224,7 @@ def get_bot_response():
         else:
             response = ""
 
-	# 시작시간 형식 체크
+	    # 시작시간 형식 체크
         if app.slot_dict['start'] != '':
             if re.compile(r'^1?[0-9]{1,2}시$').search(app.slot_dict['start']) == None:
                 app.slot_dict['start'] = ''
@@ -254,6 +256,13 @@ def get_bot_response():
                 writeLog(f"잘못된 시작시간-종료시간 범위, raw_input: {userText}")
                 return '종료시간 입력이 잘못되었습니다. 다시 입력해주세요.' + response
 
+        # 날짜 체크 : "x월x일"만 허용
+        if app.slot_dict["date"] != "":
+            if re.compile(r"[0-9]{1,2}월[0-9]{1,2}일").search(app.slot_dict["date"]) == None:
+                app.slot_dict["date"] = ""
+                writeLog(f"잘못된 날짜 형식, raw_input: {userText}")
+                return "날짜는 00월 00일 형식으로 입력해주세요. <br>(오늘, 내일도 가능합니다)" +response
+
         # 인원 체크 : 1~8명까지만 허용
         if app.slot_dict['person'] != '':
             if re.compile(r'^[1-8]명$').search(app.slot_dict['person']) == None:
@@ -270,6 +279,14 @@ def get_bot_response():
                 app.slot_dict['phone'] = ''
                 writeLog(f"잘못된 연락처 형식, raw_input: {userText}")
                 return '연락처 형식이 잘못되었습니다.' + response
+
+        # 이름 형식 체크: 이름이 2~3글자의 한글로만
+        if app.slot_dict["name"] != "":
+            if re.compile(r"[가-힣]{2,3}").search(app.slot_dict["name"]) == None or not len(app.slot_dict["name"]) in (2,3):
+                app.slot_dict["name"] = ""
+                writeLog(f"잘못된 이름 형식: {userText}")
+                app.question = "name"
+                return "이름은 2~3글자의 한글로만 작성해주세요" + response
 
         # 2. 추출된 슬롯 정보를 가지고 더 필요한 정보 물어보는 규칙 만들기 (if문)
         if ((app.slot_dict['start'] != "") and (app.slot_dict['end'] != "") and (app.slot_dict['person'] != "")and (app.slot_dict['date'] != "") and (app.slot_dict['name'] != "") and (app.slot_dict['phone'] != "")):
