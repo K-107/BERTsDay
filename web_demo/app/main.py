@@ -80,7 +80,7 @@ def home():
     app.filled_num = 0
     app.question = "all"
     app.input_idx = 0
-    app.score_limit = 0.75
+    app.score_limit = 0.7
 
     return render_template("index.html")
 
