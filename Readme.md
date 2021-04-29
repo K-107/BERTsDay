@@ -29,5 +29,6 @@
     - `Fine_tuned`는 공동 드라이브의 `프로젝트관련자료` 내에 `Fine_tuned`라는 폴더가 있습니다. 그것을 다운받아서 넣어주세요
 2. Anaconda Propmpt를 실행해주세요
 3. `conda activate {가상환경 이름}` 실행
-4. `cd /d {프로젝트 최상위 디렉토리}`  실행
-5. `python web_demo/run.py` 실행
+4. `pip install -r requirements.txt`로 필요한 패키지 설치
+5. `cd /d {프로젝트 최상위 디렉토리}`  실행
+6. `python web_demo/run.py` 실행
