@@ -127,6 +127,7 @@ answer_person_arr = ['총 몇 명이신가요?',
                      '몇 명이서 쓰실 건가요?',
                      '이용 인원을 말씀해주세요?']
 
+
 date_dict = {'오늘': 0, '금일': 0, '내일': 1, '낼': 1, '모레': 2}
 person_dict = {'한명': 1, '혼자': 1, '둘': 2, '두명': 2, '둘이': 2, '셋': 3, '세명': 3, '셋이': 3, '넷': 4, '네명': 4, '다섯': 5, '여섯': 6, '일곱': 7, '여덟': 8}
 
@@ -225,14 +226,14 @@ def get_bot_response():
         if app.slot_dict['start'] != '':
             if re.compile(r'^1?[0-9]{1,2}시$').search(app.slot_dict['start']) == None:
                 app.slot_dict['start'] = ''
-                writeLog(f"잘못된 시간 형식, raw_input: {userText}")
+                writeLog(f"잘못된 시간 형식, raw_input: {userText}, slot_dict: {app.slot_dict}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}")
                 return '시작시간 형식이 잘못되었습니다.' + response
 
         # 종료시간 형식 체크
         if app.slot_dict['end'] != '':
             if re.compile(r'^1?[0-9]{1,2}시$').search(app.slot_dict['end']) == None:
                 app.slot_dict['end'] = ''
-                writeLog(f"잘못된 시간 형식, raw_input: {userText}")
+                writeLog(f"잘못된 시간 형식, raw_input: {userText}, slot_dict: {app.slot_dict}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}")
                 return '종료시간 형식이 잘못되었습니다.' + response
 
         # 시작시간과 종료시간 체크
@@ -250,21 +251,21 @@ def get_bot_response():
 
             if start_time > end_time:
                 app.slot_dict['end'] = ''
-                writeLog(f"잘못된 시작시간-종료시간 범위, raw_input: {userText}")
+                writeLog(f"잘못된 시작시간-종료시간 범위, raw_input: {userText}, slot_dict: {app.slot_dict}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}")
                 return '종료시간 입력이 잘못되었습니다. 다시 입력해주세요.' + response
 
         # 날짜 체크 : "x월x일"만 허용
         if app.slot_dict["date"] != "":
             if re.compile(r"[0-9]{1,2}월[0-9]{1,2}일").search(app.slot_dict["date"]) == None:
                 app.slot_dict["date"] = ""
-                writeLog(f"잘못된 날짜 형식, raw_input: {userText}")
+                writeLog(f"잘못된 날짜 형식, raw_input: {userText}, slot_dict: {app.slot_dict}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}")
                 return "날짜는 00월 00일 형식으로 입력해주세요. <br>(오늘, 내일도 가능합니다)" +response
 
         # 인원 체크 : 1~8명까지만 허용
         if app.slot_dict['person'] != '':
             if re.compile(r'^[1-8]명$').search(app.slot_dict['person']) == None:
                 app.slot_dict['person'] = ''
-                writeLog(f"잘못된 인원(1~8명만 가능) 범위, raw_input: {userText}")
+                writeLog(f"잘못된 인원(1~8명만 가능) 범위, raw_input: {userText}, slot_dict: {app.slot_dict}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}")
                 return '인원은 1명에서 8명까지 이용 가능합니다.' + response
 		
         # 전화번호 형식 체크
@@ -274,7 +275,7 @@ def get_bot_response():
 
             if re.compile(r'^010-[0-9]{4}-[0-9]{4}$').search(app.slot_dict['phone']) == None:
                 app.slot_dict['phone'] = ''
-                writeLog(f"잘못된 연락처 형식, raw_input: {userText}")
+                writeLog(f"잘못된 연락처 형식, raw_input: {userText}, slot_dict: {app.slot_dict}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}")
                 return '연락처 형식이 잘못되었습니다.' + response
 
         # 이름 형식 체크: 이름이 2~3글자의 한글로만
@@ -311,7 +312,10 @@ def get_bot_response():
                 if txt in userText:
                     writeLog(f"인사말 리턴, raw_input: {userText}", 0)
                     return str(np.random.choice(answer_first_arr, 1)[0])
-
+            if "예약" in userText:
+                    writeLog(f"예약하고 싶다는 말에 대해 리턴, raw_input: {userText}", 0)
+                    return "네, 말씀해 주세요."
+            
             writeLog(f"슬롯이 빈 상태에서 주어진 알 수 없는 입력, raw_input: {userText}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}", 0)
             return '죄송합니다 제가 이해를 잘 못해서 다시 한번 입력해주세요.' + response
 
