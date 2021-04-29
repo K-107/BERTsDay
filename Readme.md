@@ -1,4 +1,4 @@
-![버츠데이 우리팀](https://user-images.githubusercontent.com/79948405/116493353-805ed400-a8d9-11eb-8d33-0b28518328eb.jpg)
+![버츠데이 로고](https://user-images.githubusercontent.com/79948405/116509036-89619c80-a8fd-11eb-8901-d26e7f181c8b.jpg)
 
 ## 1. 프로젝트 주제
 - BERT 기반 슬롯태깅을 활용한 스터디룸 예약 챗봇
