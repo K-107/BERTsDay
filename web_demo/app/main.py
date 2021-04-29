@@ -302,9 +302,9 @@ def get_bot_response():
                     'text': "[K-107 스터디룸]" +app.slot_dict['name']+'님 ' + app.slot_dict['date'] + ' ' + app.slot_dict['start'] + '부터 ' + app.slot_dict['end'] + '까지 ' + app.slot_dict['person'] + ' 예약되었습니다. ' # 한글 45자, 영어 90자 이상이면 LMS로 자동 발송
                 }
             }
-            #smsResult = requests.post(smsconfig.getUrl('/messages/v4/send'), headers=auth.get_headers(smsconfig.apiKey, smsconfig.apiSecret), json=data)
-            #writeLog("문자 보낸 결과: "+json.dumps(json.loads(smsResult.text), indent=2, ensure_ascii=False))
-            #print("문자 보낸 결과: "+json.dumps(json.loads(smsResult.text), indent=2, ensure_ascii=False))
+            smsResult = requests.post(smsconfig.getUrl('/messages/v4/send'), headers=auth.get_headers(smsconfig.apiKey, smsconfig.apiSecret), json=data)
+            writeLog("문자 보낸 결과: "+json.dumps(json.loads(smsResult.text), indent=2, ensure_ascii=False))
+            print("문자 보낸 결과: "+json.dumps(json.loads(smsResult.text), indent=2, ensure_ascii=False))
             return app.slot_dict['name']+'님 ' + app.slot_dict['date'] + ' ' + app.slot_dict['start'] + '부터 ' + app.slot_dict['end'] + '까지 ' + app.slot_dict['person'] + ' 예약되었습니다. ' + app.slot_dict['phone'] + '으로 문자 보내드리겠습니다. 감사합니다.' + response
     
         elif ((app.slot_dict['start'] == "") and (app.slot_dict['end'] == "") and (app.slot_dict['person'] == "") and (app.slot_dict['date'] == "") and (app.slot_dict['name'] == "") and (app.slot_dict['phone'] == "")):
@@ -313,8 +313,9 @@ def get_bot_response():
                     writeLog(f"인사말 리턴, raw_input: {userText}", 0)
                     return str(np.random.choice(answer_first_arr, 1)[0])
             if "예약" in userText:
-                    writeLog(f"예약하고 싶다는 말에 대해 리턴, raw_input: {userText}", 0)
-                    return "네, 말씀해 주세요."
+                app.question = "date"
+                writeLog(f"예약하고 싶다는 말에 날짜를 물어보기, raw_input: {userText}", 0)
+                return "네, 예약을 도와드리겠습니다.<br>어느 날짜(0월 0일)로 예약하실건가요?"
             
             writeLog(f"슬롯이 빈 상태에서 주어진 알 수 없는 입력, raw_input: {userText}, token_list: {token_list}, inferred_tags: {inferred_tags}, slots_score: {slots_score}", 0)
             return '죄송합니다 제가 이해를 잘 못해서 다시 한번 입력해주세요.' + response
