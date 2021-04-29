@@ -302,9 +302,9 @@ def get_bot_response():
                     'text': "[K-107 스터디룸]" +app.slot_dict['name']+'님 ' + app.slot_dict['date'] + ' ' + app.slot_dict['start'] + '부터 ' + app.slot_dict['end'] + '까지 ' + app.slot_dict['person'] + ' 예약되었습니다. ' # 한글 45자, 영어 90자 이상이면 LMS로 자동 발송
                 }
             }
-            smsResult = requests.post(smsconfig.getUrl('/messages/v4/send'), headers=auth.get_headers(smsconfig.apiKey, smsconfig.apiSecret), json=data)
-            writeLog("문자 보낸 결과: "+json.dumps(json.loads(smsResult.text), indent=2, ensure_ascii=False))
-            print("문자 보낸 결과: "+json.dumps(json.loads(smsResult.text), indent=2, ensure_ascii=False))
+            #smsResult = requests.post(smsconfig.getUrl('/messages/v4/send'), headers=auth.get_headers(smsconfig.apiKey, smsconfig.apiSecret), json=data)
+            #writeLog("문자 보낸 결과: "+json.dumps(json.loads(smsResult.text), indent=2, ensure_ascii=False))
+            #print("문자 보낸 결과: "+json.dumps(json.loads(smsResult.text), indent=2, ensure_ascii=False))
             return app.slot_dict['name']+'님 ' + app.slot_dict['date'] + ' ' + app.slot_dict['start'] + '부터 ' + app.slot_dict['end'] + '까지 ' + app.slot_dict['person'] + ' 예약되었습니다. ' + app.slot_dict['phone'] + '으로 문자 보내드리겠습니다. 감사합니다.' + response
     
         elif ((app.slot_dict['start'] == "") and (app.slot_dict['end'] == "") and (app.slot_dict['person'] == "") and (app.slot_dict['date'] == "") and (app.slot_dict['name'] == "") and (app.slot_dict['phone'] == "")):
